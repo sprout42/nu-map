@@ -24,10 +24,7 @@ nümap was developed by NCC Group and Cisco SAS team.
 The numap modernization is developed by the FaceDancer team, incluing 
 @ktemkin and Great Scott Gadgets, LLC. Most of the credit still goes to the original authors.
 
-Support
--------
 
-- IRC: `#numap on Freenode <https://webchat.freenode.net/?channels=numap>`_
 Installation
 ------------
 
@@ -37,13 +34,8 @@ instead, use pip to install it directly from github:
 
 ::
 
-    $ pip install git+https://github.com/nccgroup/numap.git#egg=numap
+    $ pip install git+https://github.com/usb-tools/numap.git#egg=numap
 
-Python Versions
----------------
-
-nümap is python2/3 compatible for most parts.
-However, the fuzzer script (**numapkitty**) runs only on python2.
 
 "Soft" Dependencies
 -------------------
@@ -51,6 +43,7 @@ However, the fuzzer script (**numapkitty**) runs only on python2.
 nümap's dependencies are listed in **setup.py** and will be installed with numap,
 however, there are couple of things that you might want to do to add support
 for some devices:
+
 
 Mass Storage
 ~~~~~~~~~~~~
@@ -98,13 +91,13 @@ You can emulate one of the existing devices
 
 ::
 
-    $ numapemulate -P fd:/dev/ttyUSB0 -C mass_storage
+    $ numap-emulate -P fd:/dev/ttyUSB0 -C mass_storage
 
 or emulate your own device:
 
 ::
 
-    $ numapemulate -P fd:/dev/ttyUSB0 -C ~/my_mass_storage.py
+    $ numap-emulate -P fd:/dev/ttyUSB0 -C ~/my_mass_storage.py
 
 A detailed guide to add your device will be added soon,
 in the meantime, you can take a look at numap devices
@@ -121,7 +114,7 @@ and checking whether a device-specific message was sent.
 
 ::
 
-    $ numapscan -P fd:/dev/ttyUSB0
+    $ numap-scan -P fd:/dev/ttyUSB0
 
 Vendor Specific Device Support Scanning
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -137,7 +130,7 @@ or another file in the same format:
 
 ::
 
-    $ numapvsscan -P fd:/dev/ttyUSB0 -d $UMAP2_DIR/data/vid_pid_db.py
+    $ numap-vsscan -P fd:/dev/ttyUSB0 -d $UMAP2_DIR/data/vid_pid_db.py
 
 Or by scanning a specific vid-pid range -
 in this example -
@@ -146,7 +139,7 @@ and PID from 0x0000 to 0xffff:
 
 ::
 
-    $ numapvsscan -P fd:/dev/ttyUSB0 -s 1001-1004:0000-ffff
+    $ numap-vsscan -P fd:/dev/ttyUSB0 -s 1001-1004:0000-ffff
 
 Any patches/additions to the vid_pid_db.py file are very welcome!
 
@@ -165,20 +158,20 @@ which might be unified into a single script in the future.
 
    ::
 
-        $ numapstages -P fd:/dev/ttyUSB0 -C keyboard -s keyboard.stages
+        $ numap-stages -P fd:/dev/ttyUSB0 -C keyboard -s keyboard.stages
 
 2. Start the kitty fuzzer in a separate shell,
    and provide it with the stages generated in step 1.
 
    ::
 
-        $ numapkitty -s keyboard.stages
+        $ numap-kitty -s keyboard.stages
 
 3. Start the numap keyboard emulation in fuzz mode
 
    ::
 
-        $ numapfuzz -P fd:/dev/ttyUSB0 -C keyboard
+        $ numap-fuzz -P fd:/dev/ttyUSB0 -C keyboard
 
 After stage 3 is performed, the fuzzing session will begin.
 
@@ -196,14 +189,3 @@ Host OS Detection
 ~~~~~~~~~~~~~~~~~
 
 TBD
-
-Toubleshooting
---------------
-
-If you have issues with nümap, try the
-`troubleshooting section <https://github.com/nccgroup/numap/blob/master/docs/troubleshooting.rst>`_
-
-Raspdancer
---------------
-You need SPI-Py <https://github.com/lthiery/SPI-Py> and GPIO python libraries.
-Use phy `rd`
