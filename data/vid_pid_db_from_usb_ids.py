@@ -5,7 +5,7 @@ http://www.linux-usb.org/usb.ids
 It is much more extensive than vid_pid_db.py,
 and contains no information about the drivers.
 '''
-from umap2.apps.vsscan import DBEntry, OS
+from numap.apps.vsscan import DBEntry, OS
 import sys
 
 db = [

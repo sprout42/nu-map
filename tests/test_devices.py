@@ -8,7 +8,7 @@ from common import get_test_logger
 from infra_event_handler import EventHandler
 from infra_app import TestApp
 from infra_phy import SendDataEvent, StallEp0Event
-from umap2.dev.cdc import USBCDCClass
+from numap.dev.cdc import USBCDCClass
 
 DIR_OUT = 0x00
 DIR_IN = 0x80

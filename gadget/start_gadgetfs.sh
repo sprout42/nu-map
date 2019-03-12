@@ -48,7 +48,7 @@ if [ -f $MODULE_PATH ]; then
     echo "- Mounting gadgetfs to /dev/gadget"
     mount -t gadgetfs none /dev/gadget
 
-    echo "-- System is ready for Umap2 --"
+    echo "-- System is ready for numap --"
 else
     echo "$MODULE_PATH was not found, not performing changes"
 fi

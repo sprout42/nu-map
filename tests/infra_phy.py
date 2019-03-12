@@ -1,7 +1,7 @@
 '''
-Physical layer for testing umap2 core and devices
+Physical layer for testing numap core and devices
 '''
-from umap2.phy.iphy import PhyInterface
+from numap.phy.iphy import PhyInterface
 from infra_event_handler import TestEvent
 
 
@@ -25,7 +25,7 @@ class TestPhy(PhyInterface):
     '''
     def __init__(self, app):
         '''
-        :type app: :class:`~umap2.app.base.Umap2App`
+        :type app: :class:`~numap.app.base.NumapApp`
         :param app: application instance
         '''
         super(TestPhy, self).__init__(app, 'Test')

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from umap2.apps.vsscan import DBEntry, OS
+from numap.apps.vsscan import DBEntry, OS
 import sys
 
 db = [

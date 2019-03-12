@@ -8,31 +8,31 @@ def read(fname):
 
 DESCRIPTION = read('README.rst')
 setup(
-    name='umap2',
-    version='2.0.1',
+    name='numap',
+    version='2.0.2',
     description='USB Host Security Assessment Tool - Revision 2',
     long_description=DESCRIPTION,
     author='NCCGroup & Cisco SAS team',
     author_email='',
-    url='https://github.com/nccgroup/umap2',
+    url='https://github.com/nccgroup/numap',
     packages=find_packages(),
     install_requires=[
+        'six',
         'docopt',
         'kittyfuzzer>=0.6.9',
-        'pyserial',
-        'six',
+        'facedancer'
     ],
     keywords='security,usb,fuzzing,kitty',
     entry_points={
         'console_scripts': [
-            'umap2detect=umap2.apps.detect_os:main',
-            'umap2emulate=umap2.apps.emulate:main',
-            'umap2fuzz=umap2.apps.fuzz:main',
-            'umap2list=umap2.apps.list_classes:main',
-            'umap2kitty=umap2.fuzz.fuzz_engine:main',
-            'umap2scan=umap2.apps.scan:main',
-            'umap2vsscan=umap2.apps.vsscan:main',
-            'umap2stages=umap2.apps.makestages:main',
+            'numap-detect=numap.apps.detect_os:main',
+            'numap-emulate=numap.apps.emulate:main',
+            'numap-fuzz=numap.apps.fuzz:main',
+            'numap-list=numap.apps.list_classes:main',
+            'numap-kitty=numap.fuzz.fuzz_engine:main',
+            'numap-scan=numap.apps.scan:main',
+            'numap-vsscan=numap.apps.vsscan:main',
+            'numap-stages=numap.apps.makestages:main',
         ]
     },
     package_data={}

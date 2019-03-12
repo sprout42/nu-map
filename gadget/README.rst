@@ -1,17 +1,17 @@
-Using Umap2 with GadgetFS
+Using nümap with GadgetFS
 =========================
 
 Preface
 -------
 
-Umap and Umap2 were developed based on the Facedancer -
+Umap and nümap were developed based on the Facedancer -
 it had some advantages over other solutions,
 and allowed python emulation of USB devices.
 It also enabled any PC to act as a USB device,
 by only using a small hardware device that speaks over
 a very common channel with the PC (UART over USB).
 
-However, with Umap2, we wanted to decouple the device emulation (e.g. Umap2)
+However, with nümap, we wanted to decouple the device emulation (e.g. nümap)
 from the physical interface that it speaks over.
 Support for GadgetFS is our first attempt to support
 a USB device hardware other than Facedancer.
@@ -22,8 +22,8 @@ allowing the implementation of USB devices on Linux based machines
 GadgetFS is a kernel module that provides user space applications
 a File-System based interface to the USB gadget subsystem.
 
-This is a guide on how to run Umap2 on a GadgetFS-enabled device,
-it details the limitations and usage for Umap2 on such a device.
+This is a guide on how to run nümap on a GadgetFS-enabled device,
+it details the limitations and usage for nümap on such a device.
 
 Limitations
 -----------
@@ -34,11 +34,11 @@ Limitations
   and use the branch **am33x-v4.7**.
   Read the installation instructions below for more information.
 - Setup request frame data is not supported at the moment,
-  this affects couple of devices that will not be emulated properly by Umap2.
+  this affects couple of devices that will not be emulated properly by nümap.
 - In some cases, a disconnection in the gadget FS stack is not handled properly.
   This causes some devices to malfunction in certain cases.
 - The GadgetFS kernel module requires some modifications (provided here)
-- You need to run umap2 as root
+- You need to run numap as root
 
 Installation
 ------------
@@ -72,13 +72,13 @@ we provide 2 versions of the patched inode.c (gadgetfs module source):
 
 At this point, you should have:
 
-- umap2 installed.
+- numap installed.
 - the kernel module is at: /root/gadgetfs.ko
 
-Running Umap2
+Running nümap
 -------------
 
-Before you run Umap2, you need to unload each module that uses the USB gadget
+Before you run nümap, you need to unload each module that uses the USB gadget
 subsystem, and load the modified gadgetfs module.
 You can use the following script to do that:
 
@@ -89,8 +89,8 @@ or for Raspberry Pi Zero W :
   $ $UMAP2_HOME/gadget/start_gadgetfs_RaspiZeroW.sh
 
 Once the new module is loaded,
-you can run Umap2 as described in the README.rst in the root of the repository,
+you can run nümap as described in the README.rst in the root of the repository,
 But specify ``-P gadgetfs`` in the command line
-to use gadgetfs as the physical layer of Umap2.
+to use gadgetfs as the physical layer of nümap.
 
 **HAPPY HACKING :)**

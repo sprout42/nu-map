@@ -1,10 +1,10 @@
 import logging
-from umap2.apps.base import Umap2App
-from umap2.utils.ulogger import set_default_handler_level
+from numap.apps.base import NumapApp
+from numap.utils.ulogger import set_default_handler_level
 from infra_phy import TestPhy
 
 
-class TestApp(Umap2App):
+class TestApp(NumapApp):
 
     def __init__(self, docstring=None, event_handler=None):
         super(TestApp, self).__init__(docstring)

@@ -1,3 +1,0 @@
-'''
-Umap2 applications
-'''

@@ -9,7 +9,7 @@ def get_test_logger():
     global test_logger
     if test_logger is None:
         # logger = logging.getLogger('unit_test_logs')
-        logger = logging.getLogger('umap2')
+        logger = logging.getLogger('numap')
         formatter = logging.Formatter(
             '[%(asctime)s] [%(levelname)s] -> %(message)s'
         )
