@@ -1,7 +1,7 @@
-nümap
+nü-map
 =====
 
-nümap is the second revision of NCC Group's
+nü-map (or nümap/numap) is the second revision of NCC Group's
 python based USB host security assessment tool.
 
 This revision will have all the features that
