@@ -1,10 +1,7 @@
 '''
-Implement a Communication Device Class (CDC) Direct Line (DL) device.
-The specification for this device may be found in CDC120-20101113-track.pdf
 and in PSTN120.pdf.
 '''
 import struct
-from binascii import unhexlify
 from numap.core.usb_interface import USBInterface
 from numap.core.usb_class import USBClass
 from numap.core.usb_endpoint import USBEndpoint
@@ -28,11 +25,11 @@ class USBCdcDlDevice(USBCDCDevice):
             cdc_cls = self.get_default_class(app, phy)
         cs_interfaces = [
             # Header Functional Descriptor
-            FD(app, phy, FD.Header, '\x01\x01'),
+            FD(app, phy, FD.Header, b'\x01\x01'),
             # Call Management Functional Descriptor
-            FD(app, phy, FD.CM, struct.pack('BB', bmCapabilities, USBCDCDevice.bDataInterface)),
+            FD(app, phy, FD.CM, struct.pack(b'BB', bmCapabilities, USBCDCDevice.bDataInterface)),
             FD(app, phy, FD.DLM, struct.pack('B', bmCapabilities)),
-            FD(app, phy, FD.UN, struct.pack('BB', USBCDCDevice.bControlInterface, USBCDCDevice.bDataInterface)),
+            FD(app, phy, FD.UN, struct.pack(b'BB', USBCDCDevice.bControlInterface, USBCDCDevice.bDataInterface)),
         ]
         interfaces = [
             USBInterface(
@@ -93,7 +90,7 @@ class USBCdcDlDevice(USBCDCDevice):
         self.debug('in handle ep2 buffer available')
         self.send_on_endpoint(
             2,
-            unhexlify('00112233445566778899aabbccddeeff')
+            b'\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff'
         )
 
 

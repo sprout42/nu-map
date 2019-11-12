@@ -181,7 +181,7 @@ class USBKeyboardInterface(USBInterface):
             if self.keys:
                 letter = self.keys.pop(0)
             else:
-                letter = '\x00'
+                letter = b'\x00'
             self.type_letter(letter)
 
     def type_letter(self, letter, modifiers=0):
@@ -205,7 +205,7 @@ class USBKeyboardDevice(USBDevice):
             device_rev=rev,
             manufacturer_string='Dell',
             product_string='Dell USB Entry Keyboard',
-            serial_number_string='00001',
+            serial_number_string=b'00001',
             configurations=[
                 USBConfiguration(
                     app=app,

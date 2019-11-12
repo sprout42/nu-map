@@ -102,7 +102,7 @@ class USBMtpInterface(USBInterface):
             manufacturer='UMAP2',
             model='Role',
             device_version='1.2',
-            serial_number='3031323334353637',
+            serial_number=b'3031323334353637',
         )
         properties = [
             MtpDeviceProperty(MtpDevicePropertyCode.MTP_DeviceFriendlyName, 0, MStr('UmapMtpDevice'), MStr('')),
@@ -150,7 +150,7 @@ class USBMsosVendor(USBVendor):
         reserved = pad(b'\x00', 7)
         properties = b''
         for prop in self.property_sections:
-            properties += struct.pack('BB', prop[0], prop[1]) + prop[2] + prop[3] + prop[4]
+            properties += struct.pack(b'BB', prop[0], prop[1]) + prop[2] + prop[3] + prop[4]
         payload = struct.pack('<HHB', bcdVersion, wIndex, bCount) + reserved + properties
         dwLength = len(payload) + 4
         payload = struct.pack('<I', dwLength) + payload
@@ -173,7 +173,7 @@ class USBMtpDevice(USBDevice):
             device_rev=rev,
             manufacturer_string='Samsung Electronics Co., Ltd',
             product_string='GT-I9250 Phone [Galaxy Nexus]',
-            serial_number_string='00001',
+            serial_number_string=b'00001',
             configurations=[
                 USBConfiguration(
                     app=app,
