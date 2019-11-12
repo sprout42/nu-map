@@ -20,10 +20,10 @@ from kitty.interfaces import WebInterface
 from kitty.model import GraphModel
 from kitty.model import Template, Meta, String, UInt32
 
-from templates import audio, cdc, enum, generic, hid, hub, mass_storage
-from templates import smart_card
+from numap.fuzz.templates import audio, cdc, enum, generic, hid, hub, mass_storage
+from numap.fuzz.templates import smart_card
 
-from controller import UmapController
+from numap.fuzz.controller import UmapController
 
 
 def enumerate_templates(module):

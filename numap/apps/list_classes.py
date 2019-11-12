@@ -17,8 +17,8 @@ class NumapListClassesApp(NumapApp):
         ks = self.umap_classes
         verbose = self.options.get('--verbose', False)
         if verbose:
-            print '%-20s  %s' % ('Device', 'Description')
-            print '--------------------  ----------------------------------------------------'
+            print('%-20s  %s' % ('Device', 'Description'))
+            print('--------------------  ----------------------------------------------------')
         for k in ks:
             if verbose:
                 print('%-20s  %s' % (k, self.umap_class_dict[k][1]))

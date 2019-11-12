@@ -315,7 +315,10 @@ class FunctionalDescriptor(USBCSInterface):
 
     def __init__(self, app, phy, subtype, cs_config):
         name = FunctionalDescriptor.get_subtype_name(subtype)
-        cs_config = struct.pack('B', subtype) + cs_config
+        if not isinstance(cs_config, bytes):
+            cs_config = struct.pack('B', subtype) + cs_config.encode('utf-8')
+        else:
+            cs_config = struct.pack('B', subtype) + cs_config
         super(FunctionalDescriptor, self).__init__(name, app, phy, cs_config)
 
     @classmethod

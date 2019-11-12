@@ -20,7 +20,10 @@ class USBCSEndpoint(USBBaseActor):
         '''
         super(USBCSEndpoint, self).__init__(app, phy)
         self.name = name
-        self.cs_config = cs_config
+        if not isinstance(cs_config, bytes):
+            self.cs_config = cs_config.encode('utf-8')
+        else:
+            self.cs_config = cs_config
         self.interface = None
         self.usb_class = None
         self.request_handlers = {

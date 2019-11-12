@@ -12,6 +12,8 @@ from numap.fuzz.helpers import mutable
 
 from facedancer.USBDevice import USBDevice as BaseUSBDevice
 
+import binascii
+
 class USBDevice(USBBaseActor, BaseUSBDevice):
     name = 'Device'
 
@@ -393,7 +395,7 @@ class USBDeviceRequest(object):
     def __init__(self, raw_bytes):
         '''Expects raw 8-byte setup data request packet'''
 
-        print(raw_bytes)
+        print(binascii.b2a_hex(raw_bytes))
 
         (
             self.request_type,

@@ -4,7 +4,7 @@ Hub templates
 from numap.core.usb import DescriptorType
 from kitty.model import UInt8, LE16, RandomBytes
 from kitty.model import Size
-from generic import Descriptor
+from numap.fuzz.templates.generic import Descriptor
 
 
 # hub_descriptor
