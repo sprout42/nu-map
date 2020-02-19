@@ -80,7 +80,7 @@ scsi_mode_sense_6_response = Template(
         SizeInBytes(name='bLength', sized_field='scsi_mode_sense_6_response', length=8, fuzzable=True),
         UInt8(name='MediumType', value=0x00),
         UInt8(name='Device_Specific_Param', value=0x00),
-        SizedPt(name='Mode_Parameter_Container', fields=RandomBytes(name='Mode_Parameter', min_length=0, max_length=4, value='\x1c'))
+        SizedPt(name='Mode_Parameter_Container', fields=RandomBytes(name='Mode_Parameter', min_length=0, max_length=4, value=b'\x1c'))
     ])
 
 
@@ -91,7 +91,7 @@ scsi_mode_sense_10_response = Template(
         SizeInBytes(name='bLength', sized_field='scsi_mode_sense_10_response', length=8, fuzzable=True),
         UInt8(name='MediumType', value=0x00),
         UInt8(name='Device_Specific_Param', value=0x00),
-        SizedPt(name='Mode_Parameter_Container', fields=RandomBytes(name='Mode_Parameter', min_length=0, max_length=4, value='\x1c'))
+        SizedPt(name='Mode_Parameter_Container', fields=RandomBytes(name='Mode_Parameter', min_length=0, max_length=4, value=b'\x1c'))
     ])
 
 

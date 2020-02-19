@@ -80,7 +80,7 @@ def mutable(stage, silent=False):
                 self.logger.error(''.join(traceback.format_stack()))
                 raise e
             if response is not None:
-                info('Response: %s' % binascii.hexlify(response))
+                info('Response: %s' % response.hex())
             return response
         return wrapper
     return wrap_f

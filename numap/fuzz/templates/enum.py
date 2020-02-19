@@ -133,7 +133,7 @@ string_descriptor_zero = Descriptor(
     name='string_descriptor_zero',
     descriptor_type=DescriptorType.string,
     fields=[
-        RandomBytes(name='lang_id', min_length=0, max_length=253, step=3, value='\x04\x09')
+        RandomBytes(name='lang_id', min_length=0, max_length=253, step=3, value=b'\x04\x09')
     ])
 
 hub_descriptor = Descriptor(

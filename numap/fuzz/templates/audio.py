@@ -88,7 +88,7 @@ audio_feature_unit_descriptor = Descriptor(
         UInt8(name='bUnitID', value=0x00),
         UInt8(name='bSourceID', value=0x00),
         SizedPt(name='bmaControls',
-                fields=RandomBytes(name='bmaControlsX', value='\x00', min_length=0, step=17, max_length=249)),
+                fields=RandomBytes(name='bmaControlsX', value=b'\x00', min_length=0, step=17, max_length=249)),
         UInt8(name='iFeature', value=0x00)
     ])
 
@@ -178,7 +178,7 @@ audio_control_interface_descriptor = Template(
                         LE16(name='bcdADC', value=0x100),
                         SizeInBytes(name='wTotalLength', sized_field='Class-Specific AC interfaces', length=16, encoder=ENC_INT_LE),
                         SizeInBytes(name='bInCollection', sized_field='baInterfaceNr', length=8),
-                        RandomBytes(name='baInterfaceNr', value='\x01', min_length=0, max_length=250),
+                        RandomBytes(name='baInterfaceNr', value=b'\x01', min_length=0, max_length=250),
                     ]
                 ),
                 SubDescriptor(
@@ -214,7 +214,7 @@ audio_control_interface_descriptor = Template(
                         UInt8(name='bDesciptorSubType', value=0x04),
                         UInt8(name='bUnitID', value=3),
                         SizeInBytes(name='bNrInPins', sized_field='baSourceID', length=8),
-                        RandomBytes(name='baSourceID', value='\x01', min_length=0, max_length=250),
+                        RandomBytes(name='baSourceID', value=b'\x01', min_length=0, max_length=250),
                         UInt8(name='bNrChannels', value=8),
                         LE16(name='wChannelConfig', value=0xaaaa),
                         UInt8(name='iChannelNames', value=4),
@@ -229,7 +229,7 @@ audio_control_interface_descriptor = Template(
                         UInt8(name='bDesciptorSubType', value=0x05),
                         UInt8(name='bUnitID', value=4),
                         SizeInBytes(name='bNrInPins', sized_field='baSourceID', length=8),
-                        RandomBytes(name='baSourceID', value='\x01', min_length=0, max_length=250),
+                        RandomBytes(name='baSourceID', value=b'\x01', min_length=0, max_length=250),
                         UInt8(name='iSelector', value=1),
                     ]
                 ),
@@ -241,7 +241,7 @@ audio_control_interface_descriptor = Template(
                         UInt8(name='bUnitID', value=5),
                         UInt8(name='bSourceID', value=2),
                         SizeInBytes(name='bControlSize', sized_field='bmaControls', length=8),
-                        RandomBytes(name='bmaControls', value='\x01', min_length=0, max_length=250),
+                        RandomBytes(name='bmaControls', value=b'\x01', min_length=0, max_length=250),
                         UInt8(name='iFeature', value=1),
                     ]
                 ),
@@ -255,7 +255,7 @@ audio_control_interface_descriptor = Template(
                             fields=[
                                 UInt8(name='bDesciptorSubType', value=0x15),
                                 ForEach('bDesciptorSubType', fields=[
-                                    RandomBytes(name='junk', value='\x01', min_length=0, max_length=250),
+                                    RandomBytes(name='junk', value=b'\x01', min_length=0, max_length=250),
                                 ])
                             ]
                         ),

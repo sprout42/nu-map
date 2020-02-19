@@ -81,7 +81,7 @@ cdc_control_interface_descriptor = Template(
                             fields=[
                                 UInt8(name='bDesciptorSubType', value=0x15),
                                 ForEach('bDesciptorSubType', fields=[
-                                    RandomBytes(name='junk', value='\x01', min_length=0, max_length=250),
+                                    RandomBytes(name='junk', value=b'\x01', min_length=0, max_length=250),
                                 ])
                             ]
                         ),

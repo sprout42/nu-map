@@ -15,17 +15,16 @@ Example(write in one line ...):
     09022e00010100c0fa0904000004ff00000007058203000401070504020002000705860200020007058802000200
 '''
 from docopt import docopt
-from binascii import unhexlify, hexlify
 import struct
 from numap.core.usb import DescriptorType
 
 
 def get_device_descriptor(opts):
-    return unhexlify(opts['<DEVICE_DESCRIPTOR>'])
+    return bytes.fromhex(opts['<DEVICE_DESCRIPTOR>'])
 
 
 def get_configuration_descriptors(opts):
-    return [unhexlify(desc) for desc in opts['<CONFIGURATION_DESCRIPTOR>']]
+    return [bytes.fromhex(desc) for desc in opts['<CONFIGURATION_DESCRIPTOR>']]
 
 
 def add_indentation(s, count=1):
@@ -134,7 +133,6 @@ class ListNode(DescriptorNode):
 def parse_pfn(desc_type):
     def parser_wrapper(pfn):
         def wrapper(self, desc):
-            # print 'Parsing desc %02x: %s' % (desc_type, hexlify(desc))
             self.select_node(desc_type)
             node = DescriptorNode(desc_type)
             node.text = pfn(self, desc, node)
@@ -341,9 +339,9 @@ class Parser(object):
                 raise Exception('Invalid configuration descriptor')
             desc_len, desc_type = struct.unpack('BB', desc_buff[:2])
             if desc_len > len(desc_buff):
-                raise Exception('Invalid descriptor length: %02x %s' % (desc_len, hexlify(desc_buff)))
+                raise Exception('Invalid descriptor length: %02x %s' % (desc_len, desc_buff.hex()))
             if desc_type not in self.parsers:
-                raise Exception('Invalid descriptor type: %02x %s' % (desc_len, hexlify(desc_buff)))
+                raise Exception('Invalid descriptor type: %02x %s' % (desc_len, desc_buff.hex()))
             current_desc = desc_buff[:desc_len]
             desc_buff = desc_buff[desc_len:]
             self.parsers[desc_type](current_desc)

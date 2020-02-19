@@ -10,7 +10,6 @@
 
 import struct
 from six.moves.queue import Queue
-from binascii import hexlify
 from numap.core.usb import DescriptorType
 from numap.core.usb_class import USBClass
 from numap.core.usb_device import USBDevice
@@ -466,7 +465,7 @@ class USBSmartcardInterface(USBInterface):
     def handle_buffer_available(self):
         if not self.int_q.empty():
             buff = self.int_q.get()
-            self.debug('Sending data to host: %s' % (hexlify(buff)))
+            self.debug('Sending data to host: %s' % (buff.hex())
             self.send_on_endpoint(3, buff)
         else:
             self.send_on_endpoint(3, b'')
@@ -488,7 +487,7 @@ class USBSmartcardDevice(USBDevice):
             device_rev=rev,
             manufacturer_string='Generic',
             product_string='Smart Card Reader Interface',
-            serial_number_string='20070818000000000',
+            serial_number_string=b'20070818000000000',
             configurations=[
                 USBConfiguration(
                     app=app,

@@ -5,7 +5,6 @@ The specification for this device may be found in CDC120-20101113-track.pdf
 and in PSTN120.pdf.
 '''
 import struct
-from binascii import unhexlify
 from numap.core.usb_interface import USBInterface
 from numap.core.usb_class import USBClass
 from numap.core.usb_endpoint import USBEndpoint
@@ -97,7 +96,7 @@ class USBCdcAcmDevice(USBCDCDevice):
         self.debug('in handle ep2 buffer available')
         self.send_on_endpoint(
             2,
-            unhexlify('ffffffffffffaabbccddeeff08060001080006040001600308aaaaaac0a80065000000000000c0a80100')
+            b'\xff\xff\xff\xff\xff\xff\xaa\xbb\xcc\xdd\xee\xff\x08\x06\x00\x01\x08\x00\x06\x04\x00\x01\x60\x03\x08\xaa\xaa\xaa\xc0\xa8\x00\x65\x00\x00\x00\x00\x00\x00\xc0\xa8\x01\x00'
         )
 
 

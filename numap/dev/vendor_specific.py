@@ -133,7 +133,7 @@ class USBVendorSpecificDevice(USBDevice):
             device_rev=rev,
             manufacturer_string='UMAP2. VID:0x%04x' % vid,
             product_string='UMAP2. PID:0x%04x' % pid,
-            serial_number_string='123456',
+            serial_number_string=b'123456',
             configurations=[
                 USBConfiguration(
                     app=app,
