@@ -11,6 +11,7 @@ from numap.core.usb_base import USBBaseActor
 from numap.fuzz.helpers import mutable
 
 from facedancer.USBDevice import USBDevice as BaseUSBDevice
+from facedancer.USBDevice import USBDeviceRequest as BaseUSBDeviceRequest
 
 import binascii
 
@@ -328,6 +329,8 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
     # USB 2.0 specification, section 9.4.7 (p 285 of pdf)
     def handle_set_configuration_request(self, req):
         self.debug('Received SET_CONFIGURATION request')
+        self.debug(req)
+        self.debug(self.configurations)
         self.supported_device_class_trigger = True
 
         # configs are one-based
@@ -378,7 +381,7 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
         self.debug('Received AOA Get Protocol request, returning 0')
 
 
-class USBDeviceRequest(object):
+class USBDeviceRequest(BaseUSBDeviceRequest):
 
     setup_request_types = {
         Request.type_standard: 'standard',
@@ -392,19 +395,23 @@ class USBDeviceRequest(object):
         Request.recipient_other: 'other',
     }
 
-    def __init__(self, raw_bytes):
-        '''Expects raw 8-byte setup data request packet'''
+    def __init__(self, obj):
+        """Expects raw 8-byte setup data request packet"""
 
-        print(binascii.b2a_hex(raw_bytes))
+        if isinstance(obj, bytes):
+            raw_bytes = obj
+        else:
+            raw_bytes = struct.pack('<BBHHH',
+                obj.request_type,
+                obj.request,
+                obj.value,
+                obj.index,
+                obj.length
+            )
+            raw_bytes += obj.data
 
-        (
-            self.request_type,
-            self.request,
-            self.value,
-            self.index,
-            self.length
-        ) = struct.unpack('<BBHHH', raw_bytes[:8])
-        self.data = raw_bytes[8:]
+
+        super(USBDeviceRequest, self).__init__(raw_bytes)
         self.raw_bytes = raw_bytes
 
     def __str__(self):
