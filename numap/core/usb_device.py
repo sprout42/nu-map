@@ -11,9 +11,6 @@ from numap.core.usb_base import USBBaseActor
 from numap.fuzz.helpers import mutable
 
 from facedancer.USBDevice import USBDevice as BaseUSBDevice
-from facedancer.USBDevice import USBDeviceRequest as BaseUSBDeviceRequest
-
-import binascii
 
 class USBDevice(USBBaseActor, BaseUSBDevice):
     name = 'Device'
@@ -381,7 +378,7 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
         self.debug('Received AOA Get Protocol request, returning 0')
 
 
-class USBDeviceRequest(BaseUSBDeviceRequest):
+class USBDeviceRequest(object):
 
     setup_request_types = {
         Request.type_standard: 'standard',
@@ -410,8 +407,6 @@ class USBDeviceRequest(BaseUSBDeviceRequest):
             )
             raw_bytes += obj.data
 
-
-        super(USBDeviceRequest, self).__init__(raw_bytes)
         self.raw_bytes = raw_bytes
 
     def __str__(self):
