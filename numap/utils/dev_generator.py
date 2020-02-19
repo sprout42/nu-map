@@ -199,7 +199,7 @@ class Parser(object):
     def parse_cs_endpoint_desc(self, desc, node):
         return build_init('CSEndpoint', [
             ('name', "'CSEndpoint'"),
-            ('cs_config', "'%s'" % (desc[2:]))
+            ('cs_config', "b'%s'" % (desc[2:].hex()))
         ])
 
     @parse_pfn(DescriptorType.endpoint)
@@ -235,7 +235,7 @@ class Parser(object):
     @parse_pfn(DescriptorType.cs_interface)
     def parse_cs_interface_desc(self, desc, node):
         return build_init('CSInterface', [
-            ("cs_config", "'%s'" % (desc[2:])),
+            ("cs_config", "b'%s'" % (desc[2:].hex())),
             ("name", "'CSInterface'")
         ])
 

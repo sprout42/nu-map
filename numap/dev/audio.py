@@ -61,11 +61,11 @@ class USBAudioClass(USBClass):
             (0x0700, 0x0a00): [b'\x01', b'\x00', b'\xff', b'\x00'],
         }
 
-        self._cur = b'\x44\xac\x00'
-        self._res = b'\x30\x00'
-        self._min = b'\x00\x20'
-        self._max = b'\x00\x21'
-        self._idle = b''
+        #self._cur = b'\x44\xac\x00'
+        #self._res = b'\x30\x00'
+        #self._min = b'\x00\x20'
+        #self._max = b'\x00\x21'
+        #self._idle = b''
 
     def set_param_val(self, req, param):
         try:

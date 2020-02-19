@@ -315,10 +315,7 @@ class FunctionalDescriptor(USBCSInterface):
 
     def __init__(self, app, phy, subtype, cs_config):
         name = FunctionalDescriptor.get_subtype_name(subtype)
-        if not isinstance(cs_config, bytes):
-            cs_config = struct.pack('B', subtype) + cs_config.encode('utf-8')
-        else:
-            cs_config = struct.pack('B', subtype) + cs_config
+        cs_config = struct.pack('B', subtype) + cs_config
         super(FunctionalDescriptor, self).__init__(name, app, phy, cs_config)
 
     @classmethod
@@ -326,7 +323,7 @@ class FunctionalDescriptor(USBCSInterface):
         for vn in dir(cls):
             if getattr(cls, vn) == subtype:
                 return vn
-        return 'FunctionalDescriptor-%02x' % subtype
+        return 'FunctionalDescriptor-%s' % subtype.hex()
 
 
 def build_notification(req_type, notification_code, value, index, data=None):
