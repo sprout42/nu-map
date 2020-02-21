@@ -22,7 +22,7 @@ class R2PParameters(Template):
             UInt8(name='bProtocolNum', value=proto),
             Container(name='abData', fields=ab_data),
         ]
-        super(R2PParameters, self).__init__(name=name, fields=fields, fuzzable=fuzzable)
+        super().__init__(name=name, fields=fields, fuzzable=fuzzable)
 
 
 smartcard_GetParameters_response = R2PParameters(
@@ -64,7 +64,7 @@ class R2PDataBlock(Template):
             UInt8(name='bChainParameter', value=chain_param),
             Container(name='abData', fields=ab_data),
         ]
-        super(R2PDataBlock, self).__init__(name=name, fields=fields, fuzzable=fuzzable)
+        super().__init__(name=name, fields=fields, fuzzable=fuzzable)
 
 smartcard_IccPowerOn_response = R2PDataBlock(
     name='smartcard_IccPowerOn_response',
@@ -94,7 +94,7 @@ class R2PSlotStatus(Template):
             UInt8(name='bError', value=error),
             UInt8(name='bClockStatus', value=clock_status),
         ]
-        super(R2PSlotStatus, self).__init__(name=name, fields=fields, fuzzable=fuzzable)
+        super().__init__(name=name, fields=fields, fuzzable=fuzzable)
 
 
 smartcard_IccPowerOff_response = R2PSlotStatus('smartcard_IccPowerOff_response', 0x00, 0x80, 0)
@@ -116,6 +116,6 @@ class R2PEscape(Template):
             UInt8(name='bRFU', value=0),
             Container(name='abData', fields=ab_data),
         ]
-        super(R2PEscape, self).__init__(name=name, fields=fields, fuzzable=fuzzable)
+        super().__init__(name=name, fields=fields, fuzzable=fuzzable)
 
 smartcard_Escape_response = R2PEscape('smartcard_Escape_response', 0x00, 0x00, RandomBytes(name='data', value='', min_length=0, max_length=150))

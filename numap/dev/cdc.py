@@ -121,11 +121,11 @@ class USBCDCClass(USBClass):
     }
 
     def __init__(self, app, phy):
-        super(USBCDCClass, self).__init__(app, phy)
+        super().__init__(app, phy)
         self.encapsulated_response = b''
 
-    def setup_local_handlers(self):
-        self.local_handlers = {
+    def setup_request_handlers(self):
+        self.request_handlers = {
             self.SEND_ENCAPSULATED_COMMAND: self.handle_setter,
             self.GET_ENCAPSULATED_RESPONSE: stage('cdc_get_encapsulated_response', self.handle_getter),
             self.SET_COMM_FEATURE: self.handle_setter,
@@ -207,7 +207,7 @@ class USBCDCClass(USBClass):
         return request
 
 
-class CommunicationClassSubclassCodes:
+class CommunicationClassSubclassCodes(object):
     '''
     Subclass codes for the communication class,
     as defined in CDC120, table 4
@@ -231,7 +231,7 @@ class CommunicationClassSubclassCodes:
     # 0x80 - 0xfe - reserved (vendor specific)
 
 
-class CommunicationClassProtocolCodes:
+class CommunicationClassProtocolCodes(object):
     '''
     Protocol codes for the communication class,
     as defined in CDC120, table 5
@@ -248,7 +248,7 @@ class CommunicationClassProtocolCodes:
     VendorSpecific = 0xff
 
 
-class DataInterfaceClassProtocolCodes:
+class DataInterfaceClassProtocolCodes(object):
     '''
     Protocol codes for the data interface class,
     as defined in CDC120, table 7
@@ -270,7 +270,7 @@ class DataInterfaceClassProtocolCodes:
     VendorSpecific = 0xff
 
 
-class NotificationCodes:
+class NotificationCodes(object):
     NetworkConnection = 0x00
     ResponseAvailable = 0x01
     AuxJackHookState = 0x08
@@ -316,7 +316,7 @@ class FunctionalDescriptor(USBCSInterface):
     def __init__(self, app, phy, subtype, cs_config):
         name = FunctionalDescriptor.get_subtype_name(subtype)
         cs_config = struct.pack('B', subtype) + cs_config
-        super(FunctionalDescriptor, self).__init__(name, app, phy, cs_config)
+        super().__init__(name, app, phy, cs_config)
 
     @classmethod
     def get_subtype_name(cls, subtype):
@@ -343,7 +343,7 @@ class USBCDCControlInterface(USBInterface):
         We override get_descriptor so we can get more complex descriptors
         in fuzzing (with CS Interfaces)
         '''
-        return super(USBCDCControlInterface, self).get_descriptor(usb_type, valid=True)
+        return super().get_descriptor(usb_type, valid=True)
 
 
 class USBCDCDevice(USBDevice):
@@ -392,7 +392,7 @@ class USBCDCDevice(USBDevice):
             cs_interfaces=cs_interfaces,
         )
         interfaces.insert(0, control_interface)
-        super(USBCDCDevice, self).__init__(
+        super().__init__(
             app=app, phy=phy,
             device_class=USBClass.CDC,
             device_subclass=0,

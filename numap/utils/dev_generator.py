@@ -85,7 +85,7 @@ class DescriptorNode(object):
 class RootNode(DescriptorNode):
 
     def __init__(self):
-        super(RootNode, self).__init__(0xff)
+        super().__init__(0xff)
 
     def to_code(self):
         fres = ''
@@ -117,7 +117,7 @@ class USBMyDevice(USBDevice):
 class ListNode(DescriptorNode):
 
     def __init__(self, node_type):
-        super(ListNode, self).__init__(node_type)
+        super().__init__(node_type)
 
     def get_pre(self):
         res = ''.join(dep.get_pre() for dep in self.deps)
@@ -308,7 +308,7 @@ class Parser(object):
         if bDescriptorType != DescriptorType.device:
             raise Exception('This is not a device descriptor!')
         configurations_name = 'configurations'
-        s = build_init('super(USBMyDevice, self).__init__', [
+        s = build_init('super().__init__', [
             ('device_class', device_class),
             ('device_subclass', device_subclass),
             ('protocol_rel_num', protocol_rel_num),

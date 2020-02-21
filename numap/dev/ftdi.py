@@ -16,7 +16,7 @@ class USBFtdiVendor(USBVendor):
     name = 'FtdiVendor'
 
     def __init__(self, app, phy):
-        super(USBFtdiVendor, self).__init__(app, phy)
+        super().__init__(app, phy)
         self.latency_timer = 0x01
         self.data = 0x00
         self.baudrate = 0x00
@@ -26,8 +26,8 @@ class USBFtdiVendor(USBVendor):
         self.dtren = 0x00
         self.rtsen = 0x00
 
-    def setup_local_handlers(self):
-        self.local_handlers = {
+    def setup_request_handlers(self):
+        self.request_handlers = {
             0x00: self.handle_reset,
             0x01: self.handle_modem_ctrl,
             0x02: self.handle_set_flow_ctrl,
@@ -112,7 +112,7 @@ class USBFtdiInterface(USBInterface):
     name = 'FtdiInterface'
 
     def __init__(self, app, phy, interface_number):
-        super(USBFtdiInterface, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             interface_number=interface_number,
@@ -164,7 +164,7 @@ class USBFtdiDevice(USBDevice):
     name = 'FtdiDevice'
 
     def __init__(self, app, phy, vid=0x0403, pid=0x6001, rev=0x0100, **kwargs):
-        super(USBFtdiDevice, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             device_class=USBClass.Unspecified,

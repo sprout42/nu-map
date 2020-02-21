@@ -16,7 +16,7 @@ class USBBinaryObjectStore(USBBaseActor):
         :param app: nümap application
         :param phy: Physical connection
         '''
-        super(USBBinaryObjectStore, self).__init__(app, phy)
+        super().__init__(app, phy)
         self.capabilities = capabilities
 
     @mutable('bos_descriptor')

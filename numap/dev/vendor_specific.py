@@ -2,20 +2,20 @@
 Contains class definitions to implement a Vendor Specific USB Device.
 '''
 from numap.core.usb_class import USBClass
-from numap.core.usb_device import USBDevice, USBDeviceRequest, Request
+from numap.core.usb_device import USBDevice, USBDeviceRequest
 from numap.core.usb_endpoint import USBEndpoint
 from numap.core.usb_vendor import USBVendor
 from numap.core.usb_configuration import USBConfiguration
 from numap.core.usb_interface import USBInterface
-from numap.core.usb import interface_class_to_descriptor_type
+from numap.core.usb import interface_class_to_descriptor_type, Request
 import struct
 
 
 class USBVendorSpecificVendor(USBVendor):
     name = 'VendorSpecificVendor'
 
-    def setup_local_handlers(self):
-        self.local_handlers = {
+    def setup_request_handlers(self):
+        self.request_handlers = {
             x: self.handle_generic for x in range(256)
         }
 
@@ -26,8 +26,8 @@ class USBVendorSpecificVendor(USBVendor):
 class USBVendorSpecificClass(USBClass):
     name = 'VendorSpecificClass'
 
-    def setup_local_handlers(self):
-        self.local_handlers = {
+    def setup_request_handlers(self):
+        self.request_handlers = {
             x: self.handle_generic for x in range(256)
         }
 
@@ -40,7 +40,7 @@ class USBVendorSpecificInterface(USBInterface):
 
     def __init__(self, app, phy, num=0, interface_alternate=0, endpoints=[]):
         # TODO: un-hardcode string index
-        super(USBVendorSpecificInterface, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             interface_number=num,
@@ -84,7 +84,7 @@ class USBVendorSpecificInterface(USBInterface):
             self.number,
             self.alternate,
             bNumEndpoints,
-            self.iclass,
+            self.iclass.class_number,
             self.subclass,
             self.protocol,
             self.string_index
@@ -99,10 +99,10 @@ class USBVendorSpecificInterface(USBInterface):
                 d += desc
 
         for e in self.cs_interfaces:
-            d += e.get_descriptor(usb_type, valid)
+            d += e.get_descriptor(usb_type=usb_type, valid=valid)
 
         for e in self.virtual_endpoints:
-            d += e.get_descriptor(usb_type, valid)
+            d += e.get_descriptor(usb_type=usb_type, valid=valid)
 
         return d
 
@@ -121,7 +121,7 @@ class USBVendorSpecificDevice(USBDevice):
     def __init__(self, app, phy, vid, pid, rev=1, **kwargs):
         self.app = app
         self.phy = phy
-        super(USBVendorSpecificDevice, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             device_class=USBClass.VendorSpecific,
@@ -162,7 +162,7 @@ class USBVendorSpecificDevice(USBDevice):
                 #self.phy.stall_ep0()
                 return
 
-        return super(USBVendorSpecificDevice, self).handle_request(buf)
+        return super().handle_request(buf)
 
     def handle_data_available(self, ep_num, data):
         '''

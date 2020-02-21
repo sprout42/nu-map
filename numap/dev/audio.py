@@ -30,8 +30,8 @@ SUBCLASS_MIDISTREAMING = 0x03
 class USBAudioClass(USBClass):
     name = 'AudioClass'
 
-    def setup_local_handlers(self):
-        self.local_handlers = {
+    def setup_request_handlers(self):
+        self.request_handlers = {
             0x01: self.handle_audio_set_cur,
             0x04: self.handle_audio_set_res,
             0x0a: self.handle_audio_set_idle,
@@ -133,7 +133,7 @@ class AudioStreaming(object):
 class USBAudioStreamingInterface(USBInterface):
 
     def __init__(self, app, phy, iface_num, iface_alt, iface_str_idx, cs_ifaces, endpoints, usb_class):
-        super(USBAudioStreamingInterface, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             interface_number=iface_num,
@@ -149,13 +149,13 @@ class USBAudioStreamingInterface(USBInterface):
 
     @mutable('audio_streaming_interface_descriptor')
     def get_descriptor(self, usb_type='fullspeed', valid=False):
-        return super(USBAudioStreamingInterface, self).get_descriptor(usb_type, valid)
+        return super().get_descriptor(usb_type, valid)
 
 
 class USBAudioControlInterface(USBInterface):
 
     def __init__(self, app, phy, iface_num, iface_alt, iface_str_idx, cs_ifaces, usb_class):
-        super(USBAudioControlInterface, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             interface_number=iface_num,
@@ -170,7 +170,7 @@ class USBAudioControlInterface(USBInterface):
 
     @mutable('audio_control_interface_descriptor')
     def get_descriptor(self, usb_type='fullspeed', valid=False):
-        return super(USBAudioControlInterface, self).get_descriptor(usb_type, valid)
+        return super().get_descriptor(usb_type, valid)
 
 
 class USBAudioDevice(USBDevice):
@@ -180,7 +180,7 @@ class USBAudioDevice(USBDevice):
     def __init__(self, app, phy, vid=0x0d8c, pid=0x000c, rev=0x0001, *args, **kwargs):
         audio_streaming = AudioStreaming(app, phy, 2, 1)
         usb_class = USBAudioClass(app, phy)
-        super(USBAudioDevice, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             device_class=USBClass.Unspecified,

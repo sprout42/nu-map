@@ -69,7 +69,7 @@ class USBCdcDlDevice(USBCDCDevice):
                 usb_class=cdc_cls
             )
         ]
-        super(USBCdcDlDevice, self).__init__(
+        super().__init__(
             app, phy,
             vid=vid, pid=pid, rev=rev,
             interfaces=interfaces, cs_interfaces=cs_interfaces, cdc_cls=cdc_cls,

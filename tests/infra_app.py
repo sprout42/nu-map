@@ -7,14 +7,14 @@ from infra_phy import TestPhy
 class TestApp(NumapApp):
 
     def __init__(self, docstring=None, event_handler=None):
-        super(TestApp, self).__init__(docstring)
+        super().__init__(docstring)
         set_default_handler_level(logging.ERROR)
         self.event_handler = event_handler
 
     def load_phy(self, phy_string):
         if phy_string == 'test':
             return TestPhy(self)
-        return super(TestApp, self).load_phy()
+        return super().load_phy()
 
     def signal_setup_packet_received(self):
         '''

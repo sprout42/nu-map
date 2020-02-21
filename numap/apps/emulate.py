@@ -35,7 +35,7 @@ class NumapEmulationApp(NumapApp):
 
     def run(self):
         self.fuzzer = self.get_fuzzer()
-        self.phy = self.load_phy(self.options['--phy'])
+        self.phy = self.load_phy()
         self.dev = self.load_device(self.options['--class'], self.phy)
         try:
             self.dev.connect()

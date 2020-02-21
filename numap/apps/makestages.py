@@ -31,7 +31,7 @@ class NumapMakeStagesApp(NumapEmulationApp):
         stage_logger = StageLogger(self.stage_file_name)
         stage_logger.start()
         set_stage_logger(stage_logger)
-        return super(NumapMakeStagesApp, self).load_device(dev_name, phy)
+        return super().load_device(dev_name, phy)
 
     def should_stop_phy(self):
         stop_phy = False

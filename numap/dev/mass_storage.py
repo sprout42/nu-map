@@ -72,11 +72,11 @@ class USBMassStorageClass(USBClass):
     name = 'MassStorageClass'
 
     def __init__(self, app, phy, scsi_device):
-        super(USBMassStorageClass, self).__init__(app, phy)
+        super().__init__(app, phy)
         self.scsi_device = scsi_device
 
-    def setup_local_handlers(self):
-        self.local_handlers = {
+    def setup_request_handlers(self):
+        self.request_handlers = {
             0xFF: self.handle_bulk_only_mass_storage_reset,
             0xFE: self.handle_get_max_lun,
         }
@@ -91,7 +91,7 @@ class USBMassStorageClass(USBClass):
         return b'\x00'
 
 
-class DiskImage:
+class DiskImage(object):
     def __init__(self, filename, block_size):
         self.filename = filename
         self.block_size = block_size
@@ -145,7 +145,7 @@ class ScsiDevice(USBBaseActor):
     name = 'ScsiDevice'
 
     def __init__(self, app, disk_image):
-        super(ScsiDevice, self).__init__(app, None)
+        super().__init__(app, None)
         self.disk_image = disk_image
         self.handlers = {
             ScsiCmds.INQUIRY: self.handle_inquiry,
@@ -425,7 +425,7 @@ class ScsiDevice(USBBaseActor):
         self.debug('Synchronize Cache (10)')
 
 
-class CommandBlockWrapper:
+class CommandBlockWrapper(object):
     def __init__(self, bytestring):
         as_array = bytearray(bytestring)
         self.signature = bytestring[0:4]
@@ -456,7 +456,7 @@ class USBMassStorageInterface(USBInterface):
     name = 'MassStorageInterface'
 
     def __init__(self, app, phy, scsi_device, usbclass, sub, proto):
-        super(USBMassStorageInterface, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             interface_number=0,
@@ -516,7 +516,7 @@ class USBMassStorageDevice(USBDevice):
         self.disk_image = DiskImage(disk_image_filename, 0x200)
         self.scsi_device = ScsiDevice(app, self.disk_image)
 
-        super(USBMassStorageDevice, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             device_class=USBClass.Unspecified,
@@ -543,7 +543,7 @@ class USBMassStorageDevice(USBDevice):
         )
 
     def disconnect(self):
-        super(USBMassStorageDevice, self).disconnect()
+        super().disconnect()
         self.scsi_device.stop()
         self.disk_image.close()
 
@@ -553,6 +553,6 @@ class USBMassStorageDevice(USBDevice):
         we should reset some flags in the scsi device ...
         '''
         self.scsi_device.handle_reset()
-        super(USBMassStorageDevice, self).handle_set_address_request(req)
+        super().handle_set_address_request(req)
 
 usb_device = USBMassStorageDevice

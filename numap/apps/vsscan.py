@@ -108,7 +108,7 @@ class _ScanSession(object):
 class NumapVSScanApp(NumapApp):
 
     def __init__(self, options):
-        super(NumapVSScanApp, self).__init__(options)
+        super().__init__(options)
         self.current_usb_function_supported = False
         self.scan_session = _ScanSession()
         self.start_time = 0
@@ -222,7 +222,7 @@ class NumapVSScanApp(NumapApp):
     def run(self):
         self.build_scan_session()
         self.logger.always('Scanning host for supported vendor specific devices')
-        phy = self.load_phy(self.options['--phy'])
+        phy = self.load_phy()
         self.prev_index = None
         while self.scan_session.current < (len(self.scan_session.db)):
             if self.stop_signal_received:

@@ -25,8 +25,8 @@ class Requests(object):
 class USBKeyboardClass(USBClass):
     name = 'KeyboardClass'
 
-    def setup_local_handlers(self):
-        self.local_handlers = {
+    def setup_request_handlers(self):
+        self.request_handlers = {
             Requests.GET_REPORT: self.handle_get_report,
             Requests.GET_IDLE: self.handle_get_idle,
             Requests.SET_REPORT: self.handle_set_report,
@@ -55,7 +55,7 @@ class USBKeyboardInterface(USBInterface):
     name = 'KeyboardInterface'
 
     def __init__(self, app, phy):
-        super(USBKeyboardInterface, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             interface_number=0,
@@ -193,7 +193,7 @@ class USBKeyboardDevice(USBDevice):
     name = 'KeyboardDevice'
 
     def __init__(self, app, phy, vid=0x610b, pid=0x4653, rev=0x1234, **kwargs):
-        super(USBKeyboardDevice, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             device_class=USBClass.Unspecified,

@@ -41,6 +41,10 @@ class USB(object):
         0x0b: DescriptorType.hid
     }
 
+    @classmethod
+    def interface_class_to_descriptor_type(cls, interface_class):
+        return cls.if_class_to_desc_type.get(interface_class, None)
+
 
 class State(object):
     detached = 0
@@ -67,4 +71,4 @@ class Request(object):
 
 
 def interface_class_to_descriptor_type(interface_class):
-    return USB.if_class_to_desc_type.get(interface_class, None)
+    return USB.interface_class_to_descriptor_type(interface_class)

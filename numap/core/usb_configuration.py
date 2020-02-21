@@ -7,8 +7,8 @@ import struct
 from numap.core.usb_base import USBBaseActor
 from numap.core.usb import DescriptorType
 from numap.fuzz.helpers import mutable
+from numap.core.phy import BaseUSBConfiguration
 
-from facedancer.USBConfiguration import USBConfiguration as BaseUSBConfiguration
 
 class USBConfiguration(USBBaseActor, BaseUSBConfiguration):
 
@@ -24,7 +24,7 @@ class USBConfiguration(USBBaseActor, BaseUSBConfiguration):
         self, app, phy,
         index, string, interfaces,
         attributes=ATTR_SELF_POWERED,
-        max_power=0x32,
+        max_power=0x32, # ? facedancer.USBConfiguration default is 250
     ):
         '''
         :param app: nümap application
@@ -38,3 +38,52 @@ class USBConfiguration(USBBaseActor, BaseUSBConfiguration):
 
         USBBaseActor.__init__(self, app, phy)
         BaseUSBConfiguration.__init__(self, index, string, interfaces, attributes, max_power)
+
+        # unused?
+        self.usb_class = None
+        self.usb_vendor = None
+        for i in self.interfaces:
+            i.set_configuration(self)
+            # this is fool-proof against weird drivers
+            if i.usb_class is not None:
+                self.usb_class = i.usb_class
+            if i.usb_vendor is not None:
+                self.usb_vendor = i.usb_vendor
+
+    @mutable('configuration_descriptor')
+    def get_descriptor(self, usb_type='fullspeed', valid=False):
+        # This function allows extra keyword arguments
+        kwargs = {
+            'usb_type': usb_type,
+            'valid': valid,
+        }
+        return BaseUSBConfiguration.get_descriptor(self, **kwargs)
+
+    @mutable('other_speed_configuration_descriptor')
+    def get_other_speed_descriptor(self, usb_type='fullspeed', valid=False):
+        '''
+        Get the other speed configuration descriptor.
+        We implement it the same as configuration descriptor,
+        only with different descriptor type.
+
+        :return: a string of the entire other speed configuration descriptor
+        '''
+        interface_descriptors = b''
+        for i in self.interfaces:
+            interface_descriptors += i.get_descriptor(usb_type, valid)
+        bLength = 9  # always 9
+        bDescriptorType = DescriptorType.other_speed_configuration
+        wTotalLength = len(interface_descriptors) + 9
+        bNumInterfaces = len(self.interfaces)
+        d = struct.pack(
+            '<BBHBBBBB',
+            bLength,
+            bDescriptorType,
+            wTotalLength & 0xffff,
+            bNumInterfaces,
+            self.configuration_index,
+            self.configuration_string_index,
+            self.attributes,
+            self.max_power
+        )
+        return d + interface_descriptors

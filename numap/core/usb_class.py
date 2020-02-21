@@ -4,9 +4,10 @@
 # sense) for implementing device classes (in the USB sense), eg, HID devices,
 # mass storage devices.
 from numap.core.usb_base import USBBaseActor
+from numap.core.phy import BaseUSBClass
 
 
-class USBClass(USBBaseActor):
+class USBClass(USBBaseActor, BaseUSBClass):
     name = 'Class'
 
     Unspecified = 0x00
@@ -31,28 +32,25 @@ class USBClass(USBBaseActor):
     ApplicationSpecific = 0xfe
     VendorSpecific = 0xff
 
-    def __init__(self, app, phy):
+    def __init__(self, app, phy, *args, **kwargs):
         '''
         :param app: nümap application
         :param phy: Physical connection
         '''
-        super(USBClass, self).__init__(app, phy)
-        self.setup_request_handlers()
+        USBBaseActor.__init__(self, app, phy)
+        BaseUSBClass.__init__(self, *args, **kwargs)
+
+        # unused
         self.device = None
-        self.interface = None
         self.endpoint = None
 
     def setup_request_handlers(self):
-        self.setup_local_handlers()
         self.request_handlers = {
-            x: self._global_handler for x in self.local_handlers
+            x: self._global_handler for x in self.request_handlers
         }
 
-    def setup_local_handlers(self):
-        self.local_handlers = {}
-
     def _global_handler(self, req):
-        handler = self.local_handlers[req.request]
+        handler = self.request_handlers[req.request]
         response = handler(req)
         if response is not None:
             self.phy.send_on_endpoint(0, response)

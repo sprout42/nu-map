@@ -14,7 +14,7 @@ class UmapController(ClientController):
     '''
 
     def __init__(self, pre_disconnect_delay=0.0, post_disconnect_delay=0.0):
-        super(UmapController, self).__init__('UmapController')
+        super().__init__('UmapController')
         self.trigger_dir = '/tmp/umap_kitty'
         self.connect_file = 'trigger_reconnect'
         self.disconnect_file = 'trigger_disconnect'
@@ -36,7 +36,7 @@ class UmapController(ClientController):
         self.del_file(self.heartbeat_file)
 
     def setup(self):
-        super(UmapController, self).setup()
+        super().setup()
         self.cleanup_triggers()
 
     def trigger_connect(self):
@@ -75,10 +75,10 @@ class UmapController(ClientController):
 
     def pre_test(self, test_number):
         self.trigger_disconnect()
-        super(UmapController, self).pre_test(test_number)
+        super().pre_test(test_number)
 
     def post_test(self):
-        super(UmapController, self).post_test()
+        super().post_test()
         if self.pre_disconnect_delay:
             time.sleep(self.pre_disconnect_delay)
         self.trigger_disconnect()

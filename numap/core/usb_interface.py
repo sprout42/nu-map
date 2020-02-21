@@ -6,10 +6,12 @@ This is a base class, and should be subclassed.
 import struct
 from numap.core.usb import interface_class_to_descriptor_type, DescriptorType
 from numap.core.usb_base import USBBaseActor
+from numap.core.usb_class import USBClass
 from numap.fuzz.helpers import mutable
+from numap.core.phy import BaseUSBInterface
 
 
-class USBInterface(USBBaseActor):
+class USBInterface(USBBaseActor, BaseUSBInterface):
     name = 'Interface'
 
     def __init__(
@@ -33,27 +35,14 @@ class USBInterface(USBBaseActor):
         :param usb_class: USB device class (default: None)
         :param usb_vendor: USB device vendor (default: None)
         '''
-        super(USBInterface, self).__init__(app, phy)
-        self.number = interface_number
-        self.alternate = interface_alternate
-        self.iclass = interface_class
-        self.subclass = interface_subclass
-        self.protocol = interface_protocol
-        self.string_index = interface_string_index
+        USBBaseActor.__init__(self, app, phy)
+        BaseUSBInterface.__init__(self, interface_number, interface_alternate,
+                interface_class, interface_subclass, interface_protocol,
+                interface_string_index, endpoints, descriptors)
 
-        self.endpoints = [] if endpoints is None else endpoints
-        self.descriptors = {} if descriptors is None else descriptors
         self.cs_interfaces = [] if cs_interfaces is None else cs_interfaces
 
-        self.descriptors[DescriptorType.interface] = self.get_descriptor
-
-        self.request_handlers = {
-            0x06: self.handle_get_descriptor_request,
-            0x0b: self.handle_set_interface_request
-        }
-
-        self.configuration = None
-
+        # unused?
         self.usb_class = usb_class
         self.usb_vendor = usb_vendor
 
@@ -69,38 +58,30 @@ class USBInterface(USBBaseActor):
         if self.usb_vendor:
             self.usb_vendor.interface = self
 
-    def set_configuration(self, config):
-        self.configuration = config
+    def _handle_legacy_interface_class(self, interface_class, descriptors):
+        # Modified from the standard facedancer.USBInterface function to support 
+        # the app & phy used by numap classes
+        iclass_desc_num = interface_class_to_descriptor_type(interface_class)
 
-    # USB 2.0 specification, section 9.4.3 (p 281 of pdf)
-    # HACK: blatant copypasta from USBDevice pains me deeply
+        if iclass_desc_num and descriptors:
+            descriptor = descriptors[iclass_desc_num]
+        else:
+            descriptor = None
+
+        return USBClass(self.app, self.phy, interface_class, descriptor, iclass_desc_num)
+
     def handle_get_descriptor_request(self, req):
-        dtype = (req.value >> 8) & 0xff
-        dindex = req.value & 0xff
-        lang = req.index
-        n = req.length
-
-        self.debug(('Received GET_DESCRIPTOR req %d, index %d, language 0x%04x, length %d' % (dtype, dindex, lang, n)))
-        response = self.descriptors[dtype]
-        if callable(response):
-            response = response(dindex)
-
-        if response:
-            self.phy.send_on_endpoint(0, response)
-            #self.phy.log_verbose('sent %d bytes in response' % (n))
+        self.debug('Received GET_DESCRIPTOR %s' % req)
+        BaseUSBInterface.handle_get_descriptor_request(self, req)
 
     def handle_set_interface_request(self, req):
-        self.debug('Received SET_INTERFACE request')
-        self.phy.stall_ep0()
+        self.debug('Received SET_INTERFACE request %s' % req)
+        BaseUSBInterface.handle_set_interface_request(self, req)
 
-    def default_handler(self, req):
-        self.phy.send_on_endpoint(0, b'')
-        self.debug('Received an unknown USBInterface request: %s, returned an empty response' % req)
-
-    # Table 9-12 of USB 2.0 spec (pdf page 296)
     @mutable('interface_descriptor')
     def get_descriptor(self, usb_type='fullspeed', valid=False):
-
+        # facedancerUSBInterface.get_descriptor() duplicated here to add 
+        # cs_interface support
         bLength = 9
         bDescriptorType = DescriptorType.interface
         bNumEndpoints = len(self.endpoints)
@@ -112,7 +93,7 @@ class USBInterface(USBBaseActor):
             self.number,
             self.alternate,
             bNumEndpoints,
-            self.iclass,
+            self.iclass.class_number,
             self.subclass,
             self.protocol,
             self.string_index

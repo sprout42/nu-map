@@ -15,14 +15,14 @@ class USBHubClass(USBClass):
     name = 'HubClass'
 
     def __init__(self, app, phy):
-        super(USBHubClass, self).__init__(app, phy)
+        super().__init__(app, phy)
         self.num_ports = 7
         self.hub_chars = 0x0000
         self.pwr_on_2_pwr_good = 2
         self.hub_contr_current = 50
 
-    def setup_local_handlers(self):
-        self.local_handlers = {
+    def setup_request_handlers(self):
+        self.request_handlers = {
             0x00: self.handle_get_hub_status,
             0x03: self.handle_set_port_feature,
             0x06: self.handle_get_descriptor
@@ -65,7 +65,7 @@ class USBHubInterface(USBInterface):
 
     def __init__(self, app, phy, num=0):
         # TODO: un-hardcode string index
-        super(USBHubInterface, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             interface_number=num,
@@ -125,7 +125,7 @@ class USBHubDevice(USBDevice):
     name = 'HubDevice'
 
     def __init__(self, app, phy, vid=0x05e3, pid=0x0610, rev=0x7732, **kwargs):
-        super(USBHubDevice, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             device_class=USBClass.Hub,

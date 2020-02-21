@@ -33,7 +33,7 @@ class DynamicExtended(OneOf):
             Dynamic(key=key, default_value=value, length=len(value), fuzzable=True, name=_join_name(name, 'dynamic')),
             additional_field
         ]
-        super(DynamicExtended, self).__init__(fields=fields, fuzzable=fuzzable, name=name)
+        super().__init__(fields=fields, fuzzable=fuzzable, name=name)
 
 
 class DynamicString(DynamicExtended):
@@ -55,7 +55,7 @@ class DynamicString(DynamicExtended):
         additional_field = String(value=value, max_size=str_len, encoder=encoder, name=_join_name(name, 'string'))
         if keep_size:
             additional_field = Pad(str_len * 8, fields=additional_field, name=_join_name(name, 'string_wrap'))
-        super(DynamicString, self).__init__(
+        super().__init__(
             key=key,
             value=value,
             additional_field=additional_field,
@@ -77,7 +77,7 @@ class DynamicInt(DynamicExtended):
         :param fuzzable: (default: True)
         :param name: (default: None)
         '''
-        super(DynamicInt, self).__init__(
+        super().__init__(
             key=key,
             value=bitfield.render().bytes,
             additional_field=bitfield,
@@ -96,7 +96,7 @@ class Descriptor(Template):
             fields = [fields]
         fields.insert(0, SizeInBytes(name='bLength', sized_field=self, length=8, fuzzable=True))
         fields.insert(1, UInt8(name='bDescriptorType', value=descriptor_type, fuzzable=fuzz_type))
-        super(Descriptor, self).__init__(name=name, fields=fields)
+        super().__init__(name=name, fields=fields)
 
 
 class SubDescriptor(Container):
@@ -105,7 +105,7 @@ class SubDescriptor(Container):
             fields = [fields]
         fields.insert(0, SizeInBytes(name='bLength', sized_field=self, length=8, fuzzable=True))
         fields.insert(1, UInt8(name='bDescriptorType', value=descriptor_type, fuzzable=fuzz_type))
-        super(SubDescriptor, self).__init__(name=name, fields=fields)
+        super().__init__(name=name, fields=fields)
 
 
 class SizedPt(Container):
@@ -121,4 +121,4 @@ class SizedPt(Container):
         if isinstance(fields, BaseField):
             fields = [fields]
         fields.insert(0, SizeInBytes(name='%s size' % name, sized_field=self, length=8, fuzzable=True))
-        super(SizedPt, self).__init__(name=name, fields=fields)
+        super().__init__(name=name, fields=fields)

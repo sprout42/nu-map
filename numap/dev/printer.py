@@ -18,8 +18,8 @@ from numap.fuzz.helpers import mutable
 class USBPrinterClass(USBClass):
     name = 'PrinterClass'
 
-    def setup_local_handlers(self):
-        self.local_handlers = {
+    def setup_request_handlers(self):
+        self.request_handlers = {
             0x00: self.handle_get_device_id,
         }
 
@@ -108,7 +108,7 @@ class USBPrinterInterface(USBInterface):
             endpoints = endpoints1
 
         # TODO: un-hardcode string index (last arg before 'verbose')
-        super(USBPrinterInterface, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             interface_number=int_num,
@@ -145,7 +145,7 @@ class USBPrinterDevice(USBDevice):
         self, app, phy, vid=0x03f0, pid=0x4417, rev=0x0001,
         usbclass=USBClass.Printer, subclass=1, proto=2
     ):
-        super(USBPrinterDevice, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             device_class=USBClass.Unspecified,

@@ -9,8 +9,8 @@ import struct
 from numap.core.usb import DescriptorType, State, Request
 from numap.core.usb_base import USBBaseActor
 from numap.fuzz.helpers import mutable
+from numap.core.phy import BaseUSBDevice, BaseUSBDeviceRequest
 
-from facedancer.USBDevice import USBDevice as BaseUSBDevice
 
 class USBDevice(USBBaseActor, BaseUSBDevice):
     name = 'Device'
@@ -41,141 +41,62 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
         :param bos: USBBinaryStoreObject instance (default: None)
         '''
 
-        if configurations is None:
-            configurations = []
-        if descriptors is None:
-            descriptors = {}
-
         USBBaseActor.__init__(self, app, phy)
-        BaseUSBDevice.__init__(self, phy, usb_class, device_subclass, protocol_rel_num, max_packet_size_ep0,
+        BaseUSBDevice.__init__(self, phy, device_class, device_subclass, protocol_rel_num, max_packet_size_ep0,
             vendor_id, product_id, device_rev, manufacturer_string, product_string, serial_number_string, configurations, 
             descriptors)
 
-        self.supported_device_class_trigger = False
-        self.supported_device_class_count = 0
+        if not descriptors:
+            # Default descriptors, explicitly listing all functions here that 
+            # are not handled by the base facedancer.USBDevice class, or 
+            # modified by this class
+            self.descriptors.update({
+                DescriptorType.device: self.get_descriptor,
+                DescriptorType.other_speed_configuration: self.get_other_speed_configuration_descriptor,
+                DescriptorType.string: self.handle_get_string_descriptor_request,
+                DescriptorType.hub: self.handle_get_hub_descriptor_request,
+                DescriptorType.device_qualifier: self.get_device_qualifier_descriptor,
+            })
 
-        self.strings = []
+            if bos:
+                descriptors[DescriptorType.bos] = self.get_bos_descriptor
 
-        self.usb_spec_version = 0x0002
-        self._device_class = device_class
-        self.device_subclass = device_subclass
-        self.protocol_rel_num = protocol_rel_num
-        self.max_packet_size_ep0 = max_packet_size_ep0
-        self.vendor_id = vendor_id
-        self.product_id = product_id
-        self.device_rev = device_rev
-
-        self.manufacturer_string_id = self.get_string_id(manufacturer_string)
-        self.product_string_id = self.get_string_id(product_string)
-        self.serial_number_string_id = self.get_string_id(serial_number_string)
-
-        # maps from USB.desc_type_* to bytearray OR callable
-        self.descriptors = {
-            DescriptorType.device: self.get_descriptor,
-            DescriptorType.configuration: self.get_configuration_descriptor,
-            DescriptorType.other_speed_configuration: self.get_other_speed_configuration_descriptor,
-            DescriptorType.string: self.handle_get_string_descriptor_request,
-            DescriptorType.hub: self.handle_get_hub_descriptor_request,
-            DescriptorType.device_qualifier: self.get_device_qualifier_descriptor,
-            DescriptorType.bos: self.get_bos_descriptor,
-        }
+        # If the descriptors parameter was provided we should update the 
+        # descriptors handler with it now because the default USBDevice handlers 
+        # we just set may have overridden the custom values
         self.descriptors.update(descriptors)
 
-        self.config_num = -1
-        self.configuration = None
-        self.configurations = configurations
+        # not part of the default facedancer.USBDevice class
+        self.bos = bos
 
+        # unused?
         self.usb_class = usb_class
         self.usb_vendor = usb_vendor
 
-        self.bos = bos
-
-        for c in self.configurations:
-
-            if c.configuration_string:
-                csi = self.get_string_id(c.configuration_string)
-                c.configuration_string_index = 0
-
-            c.set_device(self)
-
-            # this is fool-proof against weird drivers
-            #if self.usb_class is None:
-            #    self.usb_class = c.usb_class
-            #if self.usb_vendor is None:
-            #    self.usb_vendor = c.usb_vendor
+        # this is fool-proof against weird drivers
+        #if self.usb_class is None:
+        #    self.usb_class = c.usb_class
+        #if self.usb_vendor is None:
+        #    self.usb_vendor = c.usb_vendor
 
         if self.usb_vendor:
             self.usb_vendor.device = self
         if self.usb_class:
             self.usb_class.device = self
-
-        self.state = State.detached
-        self.ready = False
-
-        self.address = 0
         self.endpoints = {}
 
-    def get_string_id(self, s):
-        try:
-            i = self.strings.index(s)
-        except ValueError:
-            # string descriptors start at index 1
-            self.strings.append(s)
-            i = len(self.strings)
-        return i
+        # Add a task that will check if it is time to stop this USB device
+        self.scheduler.add_task(lambda : if self.app.should_stop_phy(): self.stop())
 
     def setup_request_handlers(self):
-        # see table 9-4 of USB 2.0 spec, page 279
-        self.request_handlers = {
-            0: self.handle_get_status_request,
-            1: self.handle_clear_feature_request,
-            3: self.handle_set_feature_request,
-            5: self.handle_set_address_request,
-            6: self.handle_get_descriptor_request,
-            7: self.handle_set_descriptor_request,
-            8: self.handle_get_configuration_request,
-            9: self.handle_set_configuration_request,
-            10: self.handle_get_interface_request,
-            11: self.handle_set_interface_request,
-            12: self.handle_synch_frame_request,
-            51: self.handle_aoa_get_protocol_request,
-        }
+        BaseUSBDevice.setup_request_handlers(self)
 
-    def connect(self):
-        self.phy.connect(self)
-        # skipping USB.state_attached may not be strictly correct (9.1.1.{1,2})
-        self.state = State.powered
-
-    def disconnect(self):
-        self.phy.disconnect()
-        self.state = State.detached
-
-    def ack_status_stage(self):
-        self.phy.ack_status_stage()
+        # Extra handlers not set by the base facedancer.USBDevice class
+        self.request_handlers[51] = self.handle_aoa_get_protocol_request
 
     @mutable('device_descriptor')
-    def get_descriptor(self, index=0, valid=False):
-        bLength = 18
-        bDescriptorType = 1
-        bMaxPacketSize0 = self.max_packet_size_ep0
-        d = struct.pack(
-            '<BBHBBBBHHHBBBB',
-            bLength,
-            bDescriptorType,
-            self.usb_spec_version,
-            self._device_class,
-            self.device_subclass,
-            self.protocol_rel_num,
-            bMaxPacketSize0,
-            self.vendor_id,
-            self.product_id,
-            self.device_rev,
-            self.manufacturer_string_id,
-            self.product_string_id,
-            self.serial_number_string_id,
-            len(self.configurations)
-        )
-        return d
+    def get_descriptor(self, index=0, usb_type='fullspeed', valid=False):
+        return BaseUSBDevice.get_descriptor(self, usb_type=usb_type, valid=valid)
 
     # IRQ handlers
     #####################################################
@@ -190,7 +111,7 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
             '<BHBBBBBB',
             bDescriptorType,
             self.usb_spec_version,
-            self._device_class,
+            self.device_class,
             self.device_subclass,
             self.protocol_rel_num,
             bMaxPacketSize0,
@@ -209,24 +130,13 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
 
     def handle_data_available(self, ep_num, data):
         if self.state == State.configured and ep_num in self.endpoints:
+            # This function from the base class is duplicated here so this 
+            # function can record that the target host appears to support this 
+            # USB device.
             self.usb_function_supported('data received on endpoint %#x' % (ep_num))
             endpoint = self.endpoints[ep_num]
             if callable(endpoint.handler):
                 endpoint.handler(data)
-
-    def handle_buffer_available(self, ep_num):
-        if self.state == State.configured and ep_num in self.endpoints:
-            endpoint = self.endpoints[ep_num]
-            if callable(endpoint.handler):
-                try:
-                    endpoint.handler()
-                except:
-                    self.error(traceback.format_exc())
-                    self.error(''.join(traceback.format_stack()))
-                    raise
-
-    # standard request handlers
-
 
     #
     # No need to mutate this one, will mutate
@@ -252,36 +162,12 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
 
     @mutable('string_descriptor_zero')
     def get_string0_descriptor(self):
-        d = struct.pack(
-            '<BBBB',
-            4,      # length of descriptor in bytes
-            3,      # descriptor type 3 == string
-            9,      # language code 0, byte 0
-            4       # language code 0, byte 1
-        )
-        return d
+        return BaseUSBDevice.handle_get_string_descriptor_request(self, 0)
 
     @mutable('string_descriptor')
     def get_string_descriptor(self, num):
         self.debug('get_string_descriptor: %#x (%#x)' % (num, len(self.strings)))
-        s = None
-        if num <= len(self.strings):
-            s = self.strings[num - 1].encode('utf-16')
-        else:
-            if self.configuration:
-                s = self.configuration.get_string_by_id(num)
-        if not s:
-            s = self.strings[0].encode('utf-16')
-        # Linux doesn't like the leading 2-byte Byte Order Mark (BOM);
-        # FreeBSD is okay without it
-        s = s[2:]
-
-        d = struct.pack(
-            '<BB',
-            len(s) + 2,  # length of descriptor in bytes
-            3            # descriptor type 3 == string
-        )
-        return d + s
+        return BaseUSBDevice.handle_get_string_descriptor_request(self, num)
 
     def handle_get_string_descriptor_request(self, num):
         if num == 0:
@@ -316,18 +202,16 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
 
     # USB 2.0 specification, section 9.4.8 (p 285 of pdf)
     def handle_set_descriptor_request(self, req):
-        self.debug('Received SET_DESCRIPTOR request')
+        self.debug('Received SET_DESCRIPTOR request: %s' % (req)
 
     # USB 2.0 specification, section 9.4.2 (p 281 of pdf)
     def handle_get_configuration_request(self, req):
-        self.debug('Received GET_CONFIGURATION request')
+        self.debug('Received GET_CONFIGURATION request: %s' % (req)
         self.phy.send_on_endpoint(0, b'\x01')  # HACK - once configuration supported
 
     # USB 2.0 specification, section 9.4.7 (p 285 of pdf)
     def handle_set_configuration_request(self, req):
-        self.debug('Received SET_CONFIGURATION request')
-        self.debug(req)
-        self.debug(self.configurations)
+        self.debug('Received SET_CONFIGURATION request: %s' % (req))
         self.supported_device_class_trigger = True
 
         # configs are one-based
@@ -350,7 +234,7 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
 
     # USB 2.0 specification, section 9.4.4 (p 282 of pdf)
     def handle_get_interface_request(self, req):
-        self.debug('Received GET_INTERFACE request')
+        self.debug('Received GET_INTERFACE request: %s' % (req)
         if req.index == 0:
             # HACK: currently only support one interface
             self.phy.send_on_endpoint(0, b'\x00')
@@ -360,11 +244,11 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
     # USB 2.0 specification, section 9.4.10 (p 288 of pdf)
     def handle_set_interface_request(self, req):
         self.phy.send_on_endpoint(0, b'')
-        self.debug('Received SET_INTERFACE request')
+        self.debug('Received SET_INTERFACE request: %s' % (req)
 
     # USB 2.0 specification, section 9.4.11 (p 288 of pdf)
     def handle_synch_frame_request(self, req):
-        self.debug('Received SYNCH_FRAME request')
+        self.debug('Received SYNCH_FRAME request: %s' % (req)
 
     # Android Open Accesories
     def handle_aoa_get_protocol_request(self, req):
@@ -378,23 +262,9 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
         self.debug('Received AOA Get Protocol request, returning 0')
 
 
-class USBDeviceRequest(object):
-
-    setup_request_types = {
-        Request.type_standard: 'standard',
-        Request.type_class: 'class',
-        Request.type_vendor: 'vendor',
-    }
-    setup_request_receipients = {
-        Request.recipient_device: 'device',
-        Request.recipient_interface: 'interface',
-        Request.recipient_endpoint: 'endpoint',
-        Request.recipient_other: 'other',
-    }
-
+class USBDeviceRequest(BaseUSBDeviceRequest):
     def __init__(self, obj):
-        """Expects raw 8-byte setup data request packet"""
-
+        """Expects raw 8-byte setup data request packet or a USB request object"""
         if isinstance(obj, bytes):
             raw_bytes = obj
         else:
@@ -407,51 +277,5 @@ class USBDeviceRequest(object):
             )
             raw_bytes += obj.data
 
+        super(USBDeviceRequest, self).__init__(raw_bytes)
         self.raw_bytes = raw_bytes
-
-    def __str__(self):
-        s = 'dir=%#x (%s), type=%#x (%s), rec=%#x (%s), req=%#x, val=%#x, idx=%#x, len=%#x' % (
-            self.get_direction(),
-            'in' if self.get_direction() else 'out',
-            self.get_type(),
-            self.setup_request_types.get(self.get_type(), 'unknown'),
-            self.get_recipient(),
-            self.setup_request_receipients.get(self.get_recipient(), 'unknown'),
-            self.request,
-            self.value,
-            self.get_index(),
-            self.length
-        )
-        return s
-
-    def raw(self):
-        '''returns request as bytes'''
-        b = struct.pack(
-            '<BBHHH',
-            self.request_type,
-            self.request,
-            self.value >> 8,
-            self.index >> 8,
-            self.length >> 8,
-        )
-        return b
-
-    def get_direction(self):
-        return (self.request_type >> 7) & 0x01
-
-    def get_type(self):
-        return (self.request_type >> 5) & 0x03
-
-    def get_recipient(self):
-        return self.request_type & 0x1f
-
-    # meaning of bits in wIndex changes whether we're talking about an
-    # interface or an endpoint (see USB 2.0 spec section 9.3.4)
-    def get_index(self):
-        rec = self.get_recipient()
-        if rec == 1:                # interface
-            return self.index
-        elif rec == 2:              # endpoint
-            return self.index & 0xf
-        else:
-            return self.index

@@ -32,7 +32,7 @@ from numap.apps.emulate import NumapEmulationApp
 class NumapFuzzApp(NumapEmulationApp):
 
     def __init__(self, options):
-        super(NumapFuzzApp, self).__init__(options)
+        super().__init__(options)
         self.count = 0
 
     def get_fuzzer(self):

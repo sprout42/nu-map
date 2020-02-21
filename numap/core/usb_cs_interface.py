@@ -15,7 +15,7 @@ class USBCSInterface(USBBaseActor):
         :param phy: physical connection
         :param cs_config: class specific configuration
         '''
-        super(USBCSInterface, self).__init__(app, phy)
+        super().__init__(app, phy)
         self.name = name
         self.cs_config = cs_config
         self.descriptors = {}
@@ -51,7 +51,7 @@ class USBCSInterface(USBBaseActor):
 
     def handle_set_interface_request(self, req):
         self.phy.stall_ep0()
-        self.info('Received SET_INTERFACE request')
+        self.info('Received SET_INTERFACE request: %s' % (req)
 
     def default_handler(self, req):
         self.phy.send_on_endpoint(0, b'')

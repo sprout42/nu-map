@@ -30,7 +30,7 @@ class DCBillboard(USBDeviceCapability):
         data += struct.pack('<I', 0)
         for mode in alternate_modes:
             data += struct.pack('<HBB', *mode)
-        super(DCBillboard, self).__init__(app, phy, self.BILLBOARD_CAPABILITY_TYPE, data)
+        super().__init__(app, phy, self.BILLBOARD_CAPABILITY_TYPE, data)
         self.additional_info_idx = additional_info_idx
         self.preferred_alternate_mode = preferred_alternate_mode
         self.vconn_power = vconn_power
@@ -54,7 +54,7 @@ class USBBillboardDevice(USBDevice):
                 max_power=0xfa
             )
         ]
-        super(USBBillboardDevice, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             device_class=USBClass.Billboard,

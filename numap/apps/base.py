@@ -8,17 +8,36 @@ import logging
 import docopt
 
 # TODO: replace FaceDancerPhy with just FaceDancerApp
-from facedancer import FacedancerUSBApp
+from numap.core.phy import Phy
 from numap.utils.ulogger import set_default_handler_level
 
 
 class NumapApp(object):
 
     def __init__(self, docstring=None):
+        # TODO: Move arg parsing over to argparse, I like it because it's more 
+        # standardized, but also it would make passing args to the phy less 
+        # nasty
         if docstring is not None:
             self.options = docopt.docopt(docstring)
+
+            # HACK HACK HACK
+            # I wish there was a better way (perhaps with argparse)
+            if '--phy-args' in self.options:
+                phy_args = {}
+                for arg in self.options['--phy-args']:
+                    args = arg.split('=', maxsplit=1)
+                    if len(args) == 1:
+                        phy_args[args[0]] = 1
+                    else:
+                        # TODO: don't use eval
+                        phy_args[args[0]] = eval(args[1])
+                self.options['--phy-args'] = phy_args
+            else:
+                self.options['--phy-args'] = {}
         else:
             self.options = {}
+
         self.umap_class_dict = {
             'audio': ('audio', 'Headset'),
             'billboard': ('billboard', 'A billboard, requires USB 2.1 and higher'),
@@ -38,6 +57,12 @@ class NumapApp(object):
         self.fuzzer = None
         self.setup_packet_received = False
 
+        self.get_backend()
+
+    def get_backend(self):
+        self.backend = Phy(
+                setup_pkt_recvd=self.signal_setup_packet_received)
+
     def get_logger(self):
         levels = {
             0: logging.INFO,
@@ -55,9 +80,12 @@ class NumapApp(object):
             set_default_handler_level(logging.WARNING)
         return logger
 
-    def load_phy(self, phy_string):
+    def load_phy(self, *args, **kwargs):
         # TODO: support options; bring GadgetFS into FaceDancer2?
-        return FacedancerUSBApp()
+
+        # get phy arguments
+        phy_args = self.options['--phy-args']
+        return self.backend.get_phy(*args, **kwargs, **phy_args)
 
     def load_device(self, dev_name, phy):
         if dev_name in self.umap_classes:

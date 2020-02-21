@@ -31,7 +31,7 @@ class USBDeviceCapability(USBBaseActor):
         :param cap_type: Capability type
         :param data: the capability data (string)
         '''
-        super(USBDeviceCapability, self).__init__(app, phy)
+        super().__init__(app, phy)
         self.cap_type = cap_type
         self.cap_data = data
 
@@ -62,7 +62,7 @@ class DCUsb20Extension(USBDeviceCapability):
 
     def __init__(self, app, phy, attributes=ATTR_NONE):
         data = struct.pack('<I', attributes)
-        super(DCUsb20Extension, self).__init__(app, phy, self.USB_20_EXTENSION, data)
+        super().__init__(app, phy, self.USB_20_EXTENSION, data)
         self.attributes = attributes
 
 
@@ -73,7 +73,7 @@ class DCSuperspeedUsb(USBDeviceCapability):
 
     def __init__(self, app, phy, attributes, speeds_supported, functionality_support, u1dev_exit_lat, u2dev_exit_lat):
         data = struct.pack('<BHBBH', attributes, speeds_supported, functionality_support, u1dev_exit_lat, u2dev_exit_lat)
-        super(DCSuperspeedUsb, self).__init__(app, phy, self.SUPERSPEED_USB, data)
+        super().__init__(app, phy, self.SUPERSPEED_USB, data)
         self.attributes = attributes
         self.speeds_supported = speeds_supported
         self.functionality_support = functionality_support
@@ -88,7 +88,7 @@ class DCContainerId(USBDeviceCapability):
 
     def __init__(self, app, phy, container_id):
         data = b'\x00' + container_id
-        super(DCContainerId, self).__init__(app, phy, self.CONTAINER_ID, data)
+        super().__init__(app, phy, self.CONTAINER_ID, data)
         self.container_id = container_id
 
 
@@ -99,7 +99,7 @@ class DCPlatform(USBDeviceCapability):
 
     def __init__(self, app, phy, platform_capability_uuid, capability_data=b''):
         data = b'\x00' + platform_capability_uuid + capability_data
-        super(DCPlatform, self).__init__(app, phy, self.PLATFORM, data)
+        super().__init__(app, phy, self.PLATFORM, data)
         self.platform_capability_uuid = platform_capability_uuid
         self.capability_data = capability_data
 
@@ -113,7 +113,7 @@ class DCSuperspeedPlusUsb(USBDeviceCapability):
         data = struct.pack('<BIHH', 0, attributes, 0, functionality_support)
         for sls_attr in sublink_speed_attributes:
             data += struct.pack('<I', sls_attr)
-        super(DCSuperspeedPlusUsb, self).__init__(app, phy, self.SUPERSPEED_PLUS, data)
+        super().__init__(app, phy, self.SUPERSPEED_PLUS, data)
         self.attributes = attributes
         self.functionality_support = functionality_support
         self.sublink_speed_attributes = sublink_speed_attributes
@@ -124,4 +124,4 @@ class DCPrecisionTimeMeasurement(USBDeviceCapability):
     Precision Time Measurement capability is defined in USB 3.1 spec, section 9.6.2.6
     '''
     def __init__(self, app, phy):
-        super(DCPrecisionTimeMeasurement, self).__init__(app, phy, self.PRECISION_TIME_MEASUREMENT, b'')
+        super().__init__(app, phy, self.PRECISION_TIME_MEASUREMENT, b'')

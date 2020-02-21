@@ -4,26 +4,11 @@
 import struct
 from numap.core.usb_base import USBBaseActor
 from numap.fuzz.helpers import mutable
+from numap.core.phy import BaseUSBEndpoint
 
 
-class USBEndpoint(USBBaseActor):
+class USBEndpoint(USBBaseActor, BaseUSBEndpoint):
     name = 'Endpoint'
-    direction_out = 0x00
-    direction_in = 0x01
-
-    transfer_type_control = 0x00
-    transfer_type_isochronous = 0x01
-    transfer_type_bulk = 0x02
-    transfer_type_interrupt = 0x03
-
-    sync_type_none = 0x00
-    sync_type_async = 0x01
-    sync_type_adaptive = 0x02
-    sync_type_synchronous = 0x03
-
-    usage_type_data = 0x00
-    usage_type_feedback = 0x01
-    usage_type_implicit_feedback = 0x02
 
     def __init__(
             self, app, phy, number, direction, transfer_type, sync_type,
@@ -49,28 +34,19 @@ class USBEndpoint(USBBaseActor):
 
         .. note:: OUT endpoint is 1, IN endpoint is either 2 or 3
         '''
-        super(USBEndpoint, self).__init__(app, phy)
-        self.number = number
-        self.direction = direction
-        self.transfer_type = transfer_type
-        self.sync_type = sync_type
-        self.usage_type = usage_type
-        self.max_packet_size = max_packet_size
-        self.interval = interval
-        self.handler = handler
-        self.interface = None
-        self.usb_class = usb_class
-        self.usb_vendor = usb_vendor
+        USBBaseActor.__init__(self, app, phy)
+        BaseUSBEndpoint.__init__(self, number, direction, transfer_type,
+                sync_type, usage_type, max_packet_size, interval, handler)
+
+        # attributes not set by the base facedancer.USBEndpoint class
         self.cs_endpoints = [] if cs_endpoints is None else cs_endpoints
         self.address = (self.number & 0x0f) | (self.direction << 7)
 
-        self.request_handlers = {
-            0: self.handle_get_status,
-            1: self.handle_clear_feature_request,
-        }
+        self.request_handlers[0] = self.handle_get_status
 
-    def handle_clear_feature_request(self, req):
-        self.interface.phy.send_on_endpoint(0, b'')
+        # unused?
+        self.usb_class = usb_class
+        self.usb_vendor = usb_vendor
 
     def handle_get_status(self, req):
         self.info('in GET_STATUS of endpoint %d' % self.number)
@@ -86,23 +62,9 @@ class USBEndpoint(USBBaseActor):
     # see Table 9-13 of USB 2.0 spec (pdf page 297)
     @mutable('endpoint_descriptor')
     def get_descriptor(self, usb_type='fullspeed', valid=False):
-        attributes = (
-            (self.transfer_type & 0x03) |
-            ((self.sync_type & 0x03) << 2) |
-            ((self.usage_type & 0x03) << 4)
-        )
-        bLength = 7
-        bDescriptorType = 5
-        wMaxPacketSize = self._get_max_packet_size(usb_type)
-        d = struct.pack(
-            '<BBBBHB',
-            bLength,
-            bDescriptorType,
-            self.address,
-            attributes,
-            wMaxPacketSize,
-            self.interval
-        )
+        d = BaseUSBEndpoint.get_descriptor(self, )
+
+        # the base facedancer.USBEndpoint class does not support cs_endpoints
         for cs in self.cs_endpoints:
             d += cs.get_descriptor()
         return d

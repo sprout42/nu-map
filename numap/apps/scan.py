@@ -2,10 +2,15 @@
 Scan device support in USB host
 
 Usage:
-    numapscan [-P=PHY_INFO] [-q] [-v ...]
+    numapscan [-P=PHY_INFO] [-a=PHY_ARG ...]  [-q] [-v ...]
 
 Options:
     -P --phy PHY_INFO           physical layer info, see list below
+    -a --phy-args PHY_ARG       optional phy arguments
+    -t --timeout TIMEOUT        timeout (seconds) for each device [default: 5]
+    -w --wait-for-timeout       Keep each USB device active until the timeout
+                                is reached. The default is to stop as soon as
+                                the device is detected as supported
     -v --verbose                verbosity level
     -q --quiet                  quiet mode. only print warning/error messages
 
@@ -24,9 +29,12 @@ from numap.apps.base import NumapApp
 class NumapScanApp(NumapApp):
 
     def __init__(self, options):
-        super(NumapScanApp, self).__init__(options)
+        super().__init__(options)
         self.current_usb_function_supported = False
         self.start_time = 0
+
+        self._timeout = self.options['--timeout']
+        self._wait_for_timeout = self.options['--wait-for-timeout']
 
     def usb_function_supported(self, reason=None):
         '''
@@ -39,7 +47,7 @@ class NumapScanApp(NumapApp):
 
     def run(self):
         self.logger.always('Scanning host for supported devices')
-        phy = self.load_phy(self.options['--phy'])
+        phy = self.load_phy()
         supported = []
         for device_name in self.umap_classes:
             self.logger.always('Testing support: %s' % (device_name))
@@ -64,15 +72,20 @@ class NumapScanApp(NumapApp):
                 self.logger.always('%d. %s' % (i + 1, device_name))
 
     def should_stop_phy(self):
-        # if self.current_usb_function_supported:
-        #     self.logger.debug('Current USB device is supported, stopping phy')
-        #     return True
-        stop_phy = False
         passed = int(time.time() - self.start_time)
-        if passed > 5:
+        if passed > self._timeout:
+            # If the timeout has been reached, stop no matter what
             self.logger.info('have been waiting long enough (over %d secs.), disconnect' % (passed))
-            stop_phy = True
-        return stop_phy
+            return True
+
+        if not self._wait_for_timeout:
+            # If the timeout has not been reached, we already know the device is 
+            # supported, and "wait-for-timeout" is not set, stop this device
+            if self.current_usb_function_supported:
+                self.logger.debug('Current USB device is supported, stopping phy')
+                return True
+
+        return False
 
 
 def main():

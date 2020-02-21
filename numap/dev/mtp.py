@@ -29,7 +29,7 @@ class USBMtpInterface(USBInterface):
         if not mtpdeviceloaded:
             raise Exception('You cannot use USBMtp until you install pymtpdevice')
         # TODO: un-hardcode string index (last arg before 'verbose')
-        super(USBMtpInterface, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             interface_number=0,
@@ -126,8 +126,8 @@ class USBMtpInterface(USBInterface):
 
 class USBMsosVendor(USBVendor):
 
-    def setup_local_handlers(self):
-        self.local_handlers = {
+    def setup_request_handlers(self):
+        self.request_handlers = {
             0x00: self.handle_msos_vendor_extended_config_descriptor,
         }
 
@@ -161,7 +161,7 @@ class USBMtpDevice(USBDevice):
     name = 'MtpDevice'
 
     def __init__(self, app, phy, vid=0x4e8, pid=0x685c, rev=0x0002, **kwargs):
-        super(USBMtpDevice, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             device_class=USBClass.Unspecified,

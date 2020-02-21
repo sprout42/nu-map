@@ -11,7 +11,7 @@ from numap.fuzz.templates.generic import Descriptor, SizedPt, DynamicInt, SubDes
 import binascii
 
 
-class _AC_DescriptorSubTypes:  # AC Interface Descriptor Subtype
+class _AC_DescriptorSubTypes(object):  # AC Interface Descriptor Subtype
 
     '''Descriptor sub types [audio10.pdf table A-5]'''
 
@@ -26,7 +26,7 @@ class _AC_DescriptorSubTypes:  # AC Interface Descriptor Subtype
     EXTENSION_UNIT = 0x08
 
 
-class _AS_DescriptorSubTypes:  # AS Interface Descriptor Subtype
+class _AS_DescriptorSubTypes(object):  # AS Interface Descriptor Subtype
 
     '''Descriptor sub types [audio10.pdf table A-6]'''
 

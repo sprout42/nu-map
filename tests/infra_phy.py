@@ -1,7 +1,7 @@
 '''
 Physical layer for testing numap core and devices
 '''
-from numap.phy.iphy import PhyInterface
+from numap.core.phy.iphy import PhyInterface
 from infra_event_handler import TestEvent
 
 
@@ -10,7 +10,7 @@ class SendDataEvent(TestEvent):
     Event that signify data that is sent on an endpoint
     '''
     def __init__(self, ep_num, data):
-        super(SendDataEvent, self).__init__()
+        super().__init__()
         self.ep_num = ep_num
         self.data = data
 
@@ -28,7 +28,7 @@ class TestPhy(PhyInterface):
         :type app: :class:`~numap.app.base.NumapApp`
         :param app: application instance
         '''
-        super(TestPhy, self).__init__(app, 'Test')
+        super().__init__(app, 'Test')
 
     def send_on_endpoint(self, ep_num, data):
         '''

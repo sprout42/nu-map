@@ -18,7 +18,7 @@ class USBCSEndpoint(USBBaseActor):
         :param phy: Physical connection
         :param cs_config: Containing class specific config
         '''
-        super(USBCSEndpoint, self).__init__(app, phy)
+        super().__init__(app, phy)
         self.name = name
         self.cs_config = cs_config
         self.interface = None

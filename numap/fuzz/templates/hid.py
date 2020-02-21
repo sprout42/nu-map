@@ -93,7 +93,7 @@ class RandomHidReport(TakeFrom):
                 for j in range(i):
                     current += chr(r.randint(0, 255))
                 fields.append(Static(name=namer.gen(opcode), value=current))
-        super(RandomHidReport, self).__init__(
+        super().__init__(
             fields=fields,
             min_elements=10,
             max_elements=40,

@@ -28,8 +28,8 @@ class ClassRequests(object):
 class USBSmartcardClass(USBClass):
     name = 'SmartcardClass'
 
-    def setup_local_handlers(self):
-        self.local_handlers = {
+    def setup_request_handlers(self):
+        self.request_handlers = {
             # ClassRequests.ABORT: ('scd_abort_response', self.handle_abort),
             ClassRequests.GET_CLOCK_FREQUENCIES: self.handle_get_clock_frequencies,
             ClassRequests.GET_DATA_RATES: self.handle_get_data_rates,
@@ -178,7 +178,7 @@ class USBSmartcardInterface(USBInterface):
         ]
 
         # TODO: un-hardcode string index (last arg before 'verbose')
-        super(USBSmartcardInterface, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             interface_number=0,
@@ -475,7 +475,7 @@ class USBSmartcardDevice(USBDevice):
     name = 'SmartcardDevice'
 
     def __init__(self, app, phy, vid=0x0bda, pid=0x0165, rev=0x2361, **kwargs):
-        super(USBSmartcardDevice, self).__init__(
+        super().__init__(
             app=app,
             phy=phy,
             device_class=USBClass.Unspecified,
