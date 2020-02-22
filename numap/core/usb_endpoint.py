@@ -2,6 +2,7 @@
 #
 # Contains class definition for USBEndpoint.
 import struct
+from numap.core.usb import update_table_for_empty_keys
 from numap.core.usb_base import USBBaseActor
 from numap.fuzz.helpers import mutable
 from numap.core.phy import BaseUSBEndpoint
@@ -42,9 +43,12 @@ class USBEndpoint(USBBaseActor, BaseUSBEndpoint):
         self.cs_endpoints = [] if cs_endpoints is None else cs_endpoints
         self.address = (self.number & 0x0f) | (self.direction << 7)
 
-        self.request_handlers[0] = self.handle_get_status
+        default_numap_usbendpoint_request_handlers = { 
+            0: self.handle_get_status
+        }
+        update_table_for_empty_keys(self.request_handlers,
+                default_numap_usbendpoint_request_handlers)
 
-        # unused?
         self.usb_class = usb_class
         self.usb_vendor = usb_vendor
 

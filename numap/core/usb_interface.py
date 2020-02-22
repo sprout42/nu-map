@@ -42,7 +42,6 @@ class USBInterface(USBBaseActor, BaseUSBInterface):
 
         self.cs_interfaces = [] if cs_interfaces is None else cs_interfaces
 
-        # unused?
         self.usb_class = usb_class
         self.usb_vendor = usb_vendor
 
@@ -77,6 +76,10 @@ class USBInterface(USBBaseActor, BaseUSBInterface):
     def handle_set_interface_request(self, req):
         self.debug('Received SET_INTERFACE request %s' % req)
         BaseUSBInterface.handle_set_interface_request(self, req)
+
+    def default_handler(self, req):
+        self.phy.send_on_endpoint(0, b'')
+        self.debug('Received an unknown USBInterface request: %s, returned an empty response' % req)
 
     @mutable('interface_descriptor')
     def get_descriptor(self, usb_type='fullspeed', valid=False):

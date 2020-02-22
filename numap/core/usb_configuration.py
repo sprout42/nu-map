@@ -39,7 +39,6 @@ class USBConfiguration(USBBaseActor, BaseUSBConfiguration):
         USBBaseActor.__init__(self, app, phy)
         BaseUSBConfiguration.__init__(self, index, string, interfaces, attributes, max_power)
 
-        # unused?
         self.usb_class = None
         self.usb_vendor = None
         for i in self.interfaces:

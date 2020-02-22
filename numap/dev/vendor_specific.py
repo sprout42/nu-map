@@ -14,8 +14,8 @@ import struct
 class USBVendorSpecificVendor(USBVendor):
     name = 'VendorSpecificVendor'
 
-    def setup_request_handlers(self):
-        self.request_handlers = {
+    def setup_local_handlers(self):
+        self.local_handlers = {
             x: self.handle_generic for x in range(256)
         }
 
@@ -26,8 +26,8 @@ class USBVendorSpecificVendor(USBVendor):
 class USBVendorSpecificClass(USBClass):
     name = 'VendorSpecificClass'
 
-    def setup_request_handlers(self):
-        self.request_handlers = {
+    def setup_local_handlers(self):
+        self.local_handlers = {
             x: self.handle_generic for x in range(256)
         }
 
@@ -150,14 +150,14 @@ class USBVendorSpecificDevice(USBDevice):
         '''
         override the handle_request - in case a request is directed to an endpoint - we mark as supported
         '''
-        req = USBDeviceRequest(buf)
+        if not isinstance(buf, USBDeviceRequest):
+            req = USBDeviceRequest(buf)
+        else:
+            req = buf
 
         # figure out the intended recipient
-        req_type = req.get_type()
-        recipient_type = req.get_recipient()
-
-        if req_type == Request.type_standard:    # for standard requests we lookup the recipient by index
-            if recipient_type == Request.recipient_endpoint:
+        if req.req_type == Request.type_standard:    # for standard requests we lookup the recipient by index
+            if req.req_recipient_type == Request.recipient_endpoint:
                 self.usb_function_supported()
                 #self.phy.stall_ep0()
                 return

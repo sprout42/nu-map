@@ -72,3 +72,11 @@ class Request(object):
 
 def interface_class_to_descriptor_type(interface_class):
     return USB.interface_class_to_descriptor_type(interface_class)
+
+
+def update_table_for_empty_keys(current_table, default_entries):
+    """ Update a dict with default entries for keys not already in the dict """
+
+    for key, value in default_entries.items():
+        if key not in current_table:
+            current_table[key] = value

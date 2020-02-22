@@ -2,15 +2,19 @@
 Scan USB host for vendor specific device support
 
 Usage:
-    numapvsscan [-P=PHY_INFO] [-q] [-d=DB_FILE] [-s=VID:PID] [-t=TIMEOUT] [-z|-b=DELAY] [-r=RESUME_FILE] [-o=OS]  [-e] [-v ...]
+    numapvsscan [-P=PHY_INFO] [-a=PHY_ARGS ...] [-q] [-d=DB_FILE] [-s=VID:PID] [-t=TIMEOUT] [-w] [-z|-b=DELAY] [-r=RESUME_FILE] [-o=OS]  [-e] [-v ...]
 
 Options:
     -P --phy PHY_INFO           physical layer info, see list below
+    -a --phy-args PHY_ARG       optional phy arguments
     -v --verbose                verbosity level
     -q --quiet                  quiet mode. only print warning/error messages
     -d --db DB_FILE             vid, pid database file (see DB_FILE below)
     -s --vid_pid VID:PID        specific VID:PID combination scan
-    -t --timeout TIMEOUT        seconds to wait for host to detect each device (defualt: 3)
+    -t --timeout TIMEOUT        timeout (seconds) for each device [default: 5]
+    -w --wait-for-timeout       Keep each USB device active until the timeout
+                                is reached. The default is to stop as soon as
+                                the device is detected as supported
     -r --resume RESUME_FILE     filename to store/load scan session data
     -z --single_step            wait for keypress between each test
     -b --between DELAY          delay in seconds to wait between tests
@@ -93,8 +97,9 @@ class DBEntry(object):
 
 class _ScanSession(object):
 
-    def __init__(self):
-        self.timeout = 5
+    def __init__(self, timeout=5, wait_for_timeout=False):
+        self.timeout = timeout
+        self.wait_for_timeout = wait_for_timeout
         self.db = []
         self.supported = []
         self.unsupported = []
@@ -110,14 +115,16 @@ class NumapVSScanApp(NumapApp):
     def __init__(self, options):
         super().__init__(options)
         self.current_usb_function_supported = False
-        self.scan_session = _ScanSession()
+        self.scan_session = _ScanSession(
+                timeout=int(self.options.get('--timeout', 5)),
+                wait_for_timeout=self.options.get('--wait-for-timeout', False)
+        )
+
         self.start_time = 0
         self.stop_signal_received = False
         self.between_delay = 5
         signal.signal(signal.SIGINT, self.signal_handler)
-        timeout = self.options['--timeout']
-        if timeout:
-            self.scan_session.timeout = int(timeout)
+
         self.single_step = False
         if self.options['--single_step']:
             self.single_step = True
@@ -289,14 +296,21 @@ class NumapVSScanApp(NumapApp):
         self.stop_signal_received = True
 
     def should_stop_phy(self):
-        stop_phy = False
         time_elapsed = int(time.time() - self.start_time)
-        if self.current_usb_function_supported:
-            stop_phy = True
-        elif time_elapsed >= self.scan_session.timeout:
+
+        if time_elapsed > self.scan_session.timeout:
+            # If the timeout has been reached, stop no matter what
             self.logger.info('have been waiting long enough (over %d secs.), disconnect' % (time_elapsed))
-            stop_phy = True
-        return stop_phy
+            return True
+
+        if not self.scan_session.wait_for_timeout:
+            # If the timeout has not been reached, we already know the device is 
+            # supported, and "wait-for-timeout" is not set, stop this device
+            if self.current_usb_function_supported:
+                self.logger.debug('Current USB device is supported, stopping phy')
+                return True
+
+        return False
 
 
 def main():

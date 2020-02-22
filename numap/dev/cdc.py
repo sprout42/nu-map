@@ -124,8 +124,8 @@ class USBCDCClass(USBClass):
         super().__init__(app, phy)
         self.encapsulated_response = b''
 
-    def setup_request_handlers(self):
-        self.request_handlers = {
+    def setup_local_handlers(self):
+        self.local_handlers = {
             self.SEND_ENCAPSULATED_COMMAND: self.handle_setter,
             self.GET_ENCAPSULATED_RESPONSE: stage('cdc_get_encapsulated_response', self.handle_getter),
             self.SET_COMM_FEATURE: self.handle_setter,

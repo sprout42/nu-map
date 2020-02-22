@@ -18,8 +18,8 @@ from numap.fuzz.helpers import mutable
 class USBPrinterClass(USBClass):
     name = 'PrinterClass'
 
-    def setup_request_handlers(self):
-        self.request_handlers = {
+    def setup_local_handlers(self):
+        self.local_handlers = {
             0x00: self.handle_get_device_id,
         }
 

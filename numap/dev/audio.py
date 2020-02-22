@@ -30,8 +30,8 @@ SUBCLASS_MIDISTREAMING = 0x03
 class USBAudioClass(USBClass):
     name = 'AudioClass'
 
-    def setup_request_handlers(self):
-        self.request_handlers = {
+    def setup_local_handlers(self):
+        self.local_handlers = {
             0x01: self.handle_audio_set_cur,
             0x04: self.handle_audio_set_res,
             0x0a: self.handle_audio_set_idle,

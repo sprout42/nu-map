@@ -28,8 +28,8 @@ class ClassRequests(object):
 class USBSmartcardClass(USBClass):
     name = 'SmartcardClass'
 
-    def setup_request_handlers(self):
-        self.request_handlers = {
+    def setup_local_handlers(self):
+        self.local_handlers = {
             # ClassRequests.ABORT: ('scd_abort_response', self.handle_abort),
             ClassRequests.GET_CLOCK_FREQUENCIES: self.handle_get_clock_frequencies,
             ClassRequests.GET_DATA_RATES: self.handle_get_data_rates,

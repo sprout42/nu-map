@@ -6,13 +6,13 @@ Usage:
 
 Options:
     -P --phy PHY_INFO           physical layer info, see list below
+    -v --verbose                verbosity level
+    -q --quiet                  quiet mode. only print warning/error messages
     -a --phy-args PHY_ARG       optional phy arguments
-    -t --timeout TIMEOUT        timeout (seconds) for each device [default: 5]
+    -t --timeout TIMEOUT        timeout (seconds) for each device (default: 5)
     -w --wait-for-timeout       Keep each USB device active until the timeout
                                 is reached. The default is to stop as soon as
                                 the device is detected as supported
-    -v --verbose                verbosity level
-    -q --quiet                  quiet mode. only print warning/error messages
 
 Physical layer:
     fd:<serial_port>        use facedancer connected to given serial port
@@ -33,8 +33,8 @@ class NumapScanApp(NumapApp):
         self.current_usb_function_supported = False
         self.start_time = 0
 
-        self._timeout = self.options['--timeout']
-        self._wait_for_timeout = self.options['--wait-for-timeout']
+        self._timeout = self.options.get('--timeout', 5) 
+        self._wait_for_timeout = self.options.get('--wait-for-timeout', False)
 
     def usb_function_supported(self, reason=None):
         '''
@@ -72,10 +72,11 @@ class NumapScanApp(NumapApp):
                 self.logger.always('%d. %s' % (i + 1, device_name))
 
     def should_stop_phy(self):
-        passed = int(time.time() - self.start_time)
-        if passed > self._timeout:
+        time_elapsed = int(time.time() - self.start_time)
+
+        if time_elapsed > self._timeout:
             # If the timeout has been reached, stop no matter what
-            self.logger.info('have been waiting long enough (over %d secs.), disconnect' % (passed))
+            self.logger.info('have been waiting long enough (over %d secs.), disconnect' % (time_elapsed))
             return True
 
         if not self._wait_for_timeout:

@@ -21,8 +21,8 @@ class USBHubClass(USBClass):
         self.pwr_on_2_pwr_good = 2
         self.hub_contr_current = 50
 
-    def setup_request_handlers(self):
-        self.request_handlers = {
+    def setup_local_handlers(self):
+        self.local_handlers = {
             0x00: self.handle_get_hub_status,
             0x03: self.handle_set_port_feature,
             0x06: self.handle_get_descriptor

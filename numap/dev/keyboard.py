@@ -25,8 +25,8 @@ class Requests(object):
 class USBKeyboardClass(USBClass):
     name = 'KeyboardClass'
 
-    def setup_request_handlers(self):
-        self.request_handlers = {
+    def setup_local_handlers(self):
+        self.local_handlers = {
             Requests.GET_REPORT: self.handle_get_report,
             Requests.GET_IDLE: self.handle_get_idle,
             Requests.SET_REPORT: self.handle_set_report,

@@ -18,8 +18,10 @@ class USBCSInterface(USBBaseActor):
         super().__init__(app, phy)
         self.name = name
         self.cs_config = cs_config
-        self.descriptors = {}
-        self.descriptors[DescriptorType.cs_interface] = self.get_descriptor
+
+        self.descriptors = {
+            DescriptorType.cs_interface: self.get_descriptor,
+        }
         self.request_handlers = {
             0x06: self.handle_get_descriptor_request,
             0x0b: self.handle_set_interface_request
@@ -51,7 +53,7 @@ class USBCSInterface(USBBaseActor):
 
     def handle_set_interface_request(self, req):
         self.phy.stall_ep0()
-        self.info('Received SET_INTERFACE request: %s' % (req)
+        self.info('Received SET_INTERFACE request: %s' % (req))
 
     def default_handler(self, req):
         self.phy.send_on_endpoint(0, b'')

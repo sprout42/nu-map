@@ -35,19 +35,8 @@ try:
 
         name = "FaceDancer2"
 
-        def __init__(self, stop_phy_check, setup_pkt_recvd):
-            """ Initializes a new FaceDancerPhy.
-
-            Parameters:
-               stop_phy_check   - A function that should be called by the phy
-                                  backend to check if it is time to stop or not
-               setup_pkt_recvd  - A function that should be called by the phy
-                                  backend to indicate that the host has sent a
-                                  setup message
-            """
-            self._stop_phy_check = stop_phy_check
-            self._setup_pkt_recvd = setup_pkt_recvd
-
+        def __init__(self):
+            """ Initializes a new FaceDancerPhy """
             # Generate our logging backend.
             self.logger = logging.getLogger('numap')
             #self.backend = facedancer
@@ -75,7 +64,9 @@ try:
 
             import facedancer.USBDevice
             import numap.core.usb_device
-            facedancer.USBDevice.USBDeviceRequest = numap.core.usb_device.USBDeviceRequest
+            facedancer.USBDevice.USBDevice = numap.core.usb_device.USBDevice
+            # No need to customize the USBDeviceRequest at the moment
+            #facedancer.USBDevice.USBDeviceRequest = numap.core.usb_device.USBDeviceRequest
 
             import facedancer.USBEndpoint
             import numap.core.usb_endpoint
@@ -94,9 +85,10 @@ try:
 
         def get_phy(self, *args, **kwargs):
             """ Returns the app that will run the physical device """
-            subcls = facedancer.FacedancerUSBApp(*args, **kwargs)
-
-            class USBApp(subcls):
+            #subcls = facedancer.FacedancerUSBApp(*args, **kwargs)
+            # class USBApp(subcls):
+            # ...
+            return facedancer.FacedancerUSBApp(*args, **kwargs)
 
 except:
     raise

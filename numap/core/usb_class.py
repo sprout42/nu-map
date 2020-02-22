@@ -45,12 +45,16 @@ class USBClass(USBBaseActor, BaseUSBClass):
         self.endpoint = None
 
     def setup_request_handlers(self):
+        self.setup_local_handlers()
         self.request_handlers = {
-            x: self._global_handler for x in self.request_handlers
+            x: self._global_handler for x in self.local_handlers
         }
 
+    def setup_local_handlers(self):
+        self.local_handlers = {}
+
     def _global_handler(self, req):
-        handler = self.request_handlers[req.request]
+        handler = self.local_handlers[req.request]
         response = handler(req)
         if response is not None:
             self.phy.send_on_endpoint(0, response)

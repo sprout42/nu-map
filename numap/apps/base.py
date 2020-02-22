@@ -60,8 +60,7 @@ class NumapApp(object):
         self.get_backend()
 
     def get_backend(self):
-        self.backend = Phy(
-                setup_pkt_recvd=self.signal_setup_packet_received)
+        self.backend = Phy()
 
     def get_logger(self):
         levels = {

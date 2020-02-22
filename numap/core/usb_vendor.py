@@ -25,8 +25,10 @@ class USBVendor(USBBaseActor, BaseUSBVendor):
         self.request_handlers = {}
 
     def default_handler(self, req):
+        print(req)
         handler = self.request_handlers[req.request]
         response = handler(req)
+        print(response)
         if response is not None:
             self.phy.send_on_endpoint(0, response)
         self.usb_function_supported('vendor specific setup request received')

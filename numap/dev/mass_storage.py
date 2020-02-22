@@ -75,8 +75,8 @@ class USBMassStorageClass(USBClass):
         super().__init__(app, phy)
         self.scsi_device = scsi_device
 
-    def setup_request_handlers(self):
-        self.request_handlers = {
+    def setup_local_handlers(self):
+        self.local_handlers = {
             0xFF: self.handle_bulk_only_mass_storage_reset,
             0xFE: self.handle_get_max_lun,
         }
