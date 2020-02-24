@@ -326,6 +326,8 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
     # USB 2.0 specification, section 9.4.7 (p 285 of pdf)
     def handle_set_configuration_request(self, req):
         self.debug('Received SET_CONFIGURATION request')
+        self.debug(req)
+        self.debug(self.configurations)
         self.supported_device_class_trigger = True
 
         # configs are one-based
@@ -390,19 +392,21 @@ class USBDeviceRequest(object):
         Request.recipient_other: 'other',
     }
 
-    def __init__(self, raw_bytes):
-        '''Expects raw 8-byte setup data request packet'''
+    def __init__(self, obj):
+        """Expects raw 8-byte setup data request packet"""
 
-        print(raw_bytes)
+        if isinstance(obj, bytes):
+            raw_bytes = obj
+        else:
+            raw_bytes = struct.pack('<BBHHH',
+                obj.request_type,
+                obj.request,
+                obj.value,
+                obj.index,
+                obj.length
+            )
+            raw_bytes += obj.data
 
-        (
-            self.request_type,
-            self.request,
-            self.value,
-            self.index,
-            self.length
-        ) = struct.unpack('<BBHHH', raw_bytes[:8])
-        self.data = raw_bytes[8:]
         self.raw_bytes = raw_bytes
 
     def __str__(self):

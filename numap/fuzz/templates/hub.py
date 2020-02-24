@@ -4,7 +4,7 @@ Hub templates
 from numap.core.usb import DescriptorType
 from kitty.model import UInt8, LE16, RandomBytes
 from kitty.model import Size
-from generic import Descriptor
+from numap.fuzz.templates.generic import Descriptor
 
 
 # hub_descriptor
@@ -21,8 +21,8 @@ from generic import Descriptor
         num_bytes = self.num_ports // 7
         if self.num_ports % 7 != 0:
             num_bytes += 1
-        d += '\x00' * num_bytes
-        d += '\xff' * num_bytes
+        d += b'\x00' * num_bytes
+        d += b'\xff' * num_bytes
         d = struct.pack('B', len(d) + 1) + d
         return d
 '''
@@ -35,5 +35,5 @@ hub_descriptor = Descriptor(
         LE16(name='wHubCharacteristics', value=0x0000),
         UInt8(name='bPwrOn2PwrGood', value=0x00),
         UInt8(name='bHubContrCurrent', value=0x02),
-        RandomBytes(name='DeviceRemovable', value='\x00', min_length=0, max_length=250),
+        RandomBytes(name='DeviceRemovable', value=b'\x00', min_length=0, max_length=250),
     ])

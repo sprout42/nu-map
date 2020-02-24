@@ -13,7 +13,6 @@
 from mmap import mmap
 import os
 import struct
-from binascii import hexlify
 from threading import Thread, Event
 import time
 
@@ -129,7 +128,7 @@ as a small disk image (extract it using `tar xvf fat32.3M.stick.img`)
         block_end = (address + 1) * self.block_size   # slices are NON-inclusive
 
         pad_len = (self.block_size - (len(data) % self.block_size)) % self.block_size
-        data += '\x00' * pad_len
+        data += b'\x00' * pad_len
         self.image[block_start:block_end] = data[:self.block_size]
         self.image.flush()
 
@@ -229,7 +228,7 @@ class ScsiDevice(USBBaseActor):
 
     @mutable('scsi_inquiry_response')
     def handle_inquiry(self, cbw):
-        self.debug('SCSI Inquiry, data: %s' % hexlify(cbw.cb[1:]))
+        self.debug('SCSI Inquiry, data: %s' % cbw.cb[1:].hex())
         peripheral = 0x00  # SBC
         RMB = 0x80  # Removable
         version = 0x00
@@ -238,15 +237,15 @@ class ScsiDevice(USBBaseActor):
         vendor_id = b'MBYDCOR '
         product_id = b'UMAP2 DISK IMAG '
         product_revision_level = b'8.02'
-        part1 = struct.pack('BBBB', peripheral, RMB, version, response_data_format)
-        part2 = struct.pack('BBB', *config) + vendor_id + product_id + product_revision_level
+        part1 = struct.pack(b'BBBB', peripheral, RMB, version, response_data_format)
+        part2 = struct.pack(b'BBB', *config) + vendor_id + product_id + product_revision_level
         length = struct.pack('B', len(part2))
         response = part1 + length + part2
         return response
 
     @mutable('scsi_request_sense_response')
     def handle_request_sense(self, cbw):
-        self.debug('SCSI Request Sense, data: %s' % hexlify(cbw.cb[1:]))
+        self.debug('SCSI Request Sense, data: %s' % cbw.cb[1:].hex())
         response_code = 0x70
         valid = 0x00
         filemark = 0x06
@@ -277,7 +276,7 @@ class ScsiDevice(USBBaseActor):
     @mutable('scsi_read_capacity_10_response')
     def handle_read_capacity_10(self, cbw):
         # .. todo: is the length correct?
-        self.debug('SCSI Read Capacity(10), data: %s' % hexlify(cbw.cb[1:]))
+        self.debug('SCSI Read Capacity(10), data: %s' % cbw.cb[1:].hex())
         lastlba = self.disk_image.get_sector_count()
         length = self.disk_image.block_size
         response = struct.pack('>II', lastlba, length)
@@ -286,7 +285,7 @@ class ScsiDevice(USBBaseActor):
     @mutable('scsi_read_capacity_16_response')
     def handle_read_capacity_16(self, cbw):
         # .. todo: is the length correct?
-        self.debug('SCSI Read Capacity(16), data: %s' % hexlify(cbw.cb[1:]))
+        self.debug('SCSI Read Capacity(16), data: %s' % cbw.cb[1:].hex())
         lastlba = self.disk_image.get_sector_count()
         length = self.disk_image.block_size
         response = struct.pack('>BBQIBB', 0x9e, 0x10, lastlba, length, 0x00, 0x00)
@@ -302,7 +301,7 @@ class ScsiDevice(USBBaseActor):
 
     @mutable('scsi_write_10_response')
     def handle_write_10(self, cbw):
-        self.debug('SCSI Write (10), data: %s' % hexlify(cbw.cb[1:]))
+        self.debug('SCSI Write (10), data: %s' % cbw.cb[1:].hex())
 
         base_lba = struct.unpack('>I', cbw.cb[2:6])[0]
         num_blocks = struct.unpack('>H', cbw.cb[7:9])[0]
@@ -336,7 +335,7 @@ class ScsiDevice(USBBaseActor):
         raise NotImplementedError('yet...')
 
     def _build_page0_report(self, page, data):
-        report = struct.pack('BB', page, len(data))
+        report = struct.pack(b'BB', page, len(data))
         report += data
         return report
 
@@ -390,7 +389,7 @@ class ScsiDevice(USBBaseActor):
         if report is None:
             # default behaviour, taken from previous implementation
             # this should probably be changed ...
-            report = '\x07\x00\x00\x00\x00\x00\x00\x00'
+            report = b'\x07\x00\x00\x00\x00\x00\x00\x00'
         if with_header:
             self.debug('SCSI mode sense (%d) - adding header' % (mode_type))
             report = self._report_header(mode_type, len(report)) + report
@@ -440,13 +439,13 @@ class CommandBlockWrapper:
         self.opcode = self.cb[0]
 
     def __str__(self):
-        s = 'sig: %s\n' % hexlify(self.signature)
-        s += 'tag: %s\n' % hexlify(self.tag)
+        s = 'sig: %s\n' % self.signature.hex()
+        s += 'tag: %s\n' % self.tag.hex()
         s += 'data transfer len: %s\n' % self.data_transfer_length
         s += 'flags: %s\n' % self.flags
         s += 'lun: %s\n' % self.lun
         s += 'command block len: %s\n' % self.cb_length
-        s += 'command block: %s\n' % hexlify(self.cb)
+        s += 'command block: %s\n' % self.cb.hex()
         return s
 
 
@@ -529,7 +528,7 @@ class USBMassStorageDevice(USBDevice):
             device_rev=rev,
             manufacturer_string='PNY',
             product_string='USB 2.0 FD',
-            serial_number_string='4731020ef1914da9',
+            serial_number_string=b'4731020ef1914da9',
             configurations=[
                 USBConfiguration(
                     app=app,

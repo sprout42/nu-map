@@ -8,7 +8,7 @@ from kitty.model import UInt8, LE16, RandomBytes, BitField, Static
 from kitty.model import Template, Repeat, List, Container, ForEach, OneOf
 from kitty.model import ElementCount
 from kitty.model import MutableField
-from generic import SubDescriptor
+from numap.fuzz.templates.generic import SubDescriptor
 
 
 cdc_control_interface_descriptor = Template(
@@ -81,7 +81,7 @@ cdc_control_interface_descriptor = Template(
                             fields=[
                                 UInt8(name='bDesciptorSubType', value=0x15),
                                 ForEach('bDesciptorSubType', fields=[
-                                    RandomBytes(name='junk', value='\x01', min_length=0, max_length=250),
+                                    RandomBytes(name='junk', value=b'\x01', min_length=0, max_length=250),
                                 ])
                             ]
                         ),

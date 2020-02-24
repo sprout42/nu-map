@@ -126,7 +126,7 @@ class USBPrinterInterface(USBInterface):
         if not self.writing:
             self.info('Writing PCL file: %s' % self.filename)
 
-        with open(self.filename, 'ab') as out_file:
+        with open(self.filename, b'ab') as out_file:
             self.writing = True
             out_file.write(data)
 

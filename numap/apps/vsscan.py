@@ -149,7 +149,7 @@ class NumapVSScanApp(NumapApp):
         if dirpath in sys.path:
             sys.path.remove(dirpath)
         sys.path.insert(0, dirpath)
-        module = __import__(modulename, globals(), locals(), [], -1)
+        module = __import__(modulename, globals(), locals(), [], 0)
         self.scan_session.db = module.db
         self.logger.always('loaded %d entries' % len(self.scan_session.db))
 

@@ -54,8 +54,8 @@ class USBHubClass(USBClass):
         num_bytes = self.num_ports // 7
         if self.num_ports % 7 != 0:
             num_bytes += 1
-        d += '\x00' * num_bytes
-        d += '\xff' * num_bytes
+        d += b'\x00' * num_bytes
+        d += b'\xff' * num_bytes
         d = struct.pack('B', len(d) + 1) + d
         return d
 
@@ -137,7 +137,7 @@ class USBHubDevice(USBDevice):
             device_rev=rev,
             manufacturer_string='Genesys Logic, Inc',
             product_string='USB2.0 Hub',
-            serial_number_string='1234',
+            serial_number_string=b'1234',
             configurations=[
                 USBConfiguration(
                     app=app,
