@@ -528,7 +528,7 @@ class USBMassStorageDevice(USBDevice):
             device_rev=rev,
             manufacturer_string='PNY',
             product_string='USB 2.0 FD',
-            serial_number_string=b'4731020ef1914da9',
+            serial_number_string='4731020ef1914da9',
             configurations=[
                 USBConfiguration(
                     app=app,

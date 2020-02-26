@@ -69,13 +69,17 @@ class USBAudioClass(USBClass):
 
     def set_param_val(self, req, param):
         try:
+            old_val = self._settings[(req.value, req.index)][param]
+            self.debug('changing %s:%s:%s value: %s to %s' % (req.value, req.index, param, old_val, req.data))
             self._settings[(req.value, req.index)][param] = req.data
         except:
             raise Exception('Cannot find tuple (%#x, %#x, %#x) in settings' % (req.value, req.index, param))
 
     def get_param_val(self, req, param):
         try:
-            return self._settings[(req.value, req.index)][param]
+            val = self._settings[(req.value, req.index)][param]
+            self.debug('param %s:%s:%s value: %s' % (req.value, req.index, param, val))
+            return val
         except:
             raise Exception('Cannot find tuple (%#x, %#x, %#x) in settings' % (req.value, req.index, param))
 

@@ -68,11 +68,12 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
         self.usb_class = usb_class
         self.usb_vendor = usb_vendor
 
-        # this is fool-proof against weird drivers
-        #if self.usb_class is None:
-        #    self.usb_class = c.usb_class
-        #if self.usb_vendor is None:
-        #    self.usb_vendor = c.usb_vendor
+        for c in self.configurations:
+            # this is fool-proof against weird drivers
+            if self.usb_class is None:
+                self.usb_class = c.usb_class
+            if self.usb_vendor is None:
+                self.usb_vendor = c.usb_vendor
 
         if self.usb_vendor:
             self.usb_vendor.device = self

@@ -137,7 +137,7 @@ class USBHubDevice(USBDevice):
             device_rev=rev,
             manufacturer_string='Genesys Logic, Inc',
             product_string='USB2.0 Hub',
-            serial_number_string=b'1234',
+            serial_number_string='1234',
             configurations=[
                 USBConfiguration(
                     app=app,
