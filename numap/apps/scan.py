@@ -31,6 +31,7 @@ class NumapScanApp(NumapApp):
     def __init__(self, options):
         super().__init__(options)
         self.current_usb_function_supported = False
+        self.current_usb_function_supported_reason = None
         self.start_time = 0
 
         self._timeout = self.options.get('--timeout', 5) 
@@ -44,6 +45,8 @@ class NumapScanApp(NumapApp):
         :param reason: reason why we decided it is supported (default: None)
         '''
         self.current_usb_function_supported = True
+        if reason:
+            self.current_usb_function_supported_reason = reason
 
     def run(self):
         self.logger.always('Scanning host for supported devices')
@@ -61,7 +64,7 @@ class NumapScanApp(NumapApp):
                 self.logger.error(traceback.format_exc())
             phy.disconnect()
             if self.current_usb_function_supported:
-                self.logger.always('Device is SUPPORTED')
+                self.logger.always('Device is SUPPORTED: %s' % (self.current_usb_function_supported_reason))
                 supported.append(device_name)
             self.current_usb_function_supported = False
             time.sleep(2)

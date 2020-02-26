@@ -26,8 +26,8 @@ class USBFtdiVendor(USBVendor):
         self.dtren = 0x00
         self.rtsen = 0x00
 
-    def setup_request_handlers(self):
-        self.request_handlers = {
+    def setup_local_handlers(self):
+        self.local_handlers = {
             0x00: self.handle_reset,
             0x01: self.handle_modem_ctrl,
             0x02: self.handle_set_flow_ctrl,

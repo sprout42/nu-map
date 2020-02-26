@@ -126,8 +126,8 @@ class USBMtpInterface(USBInterface):
 
 class USBMsosVendor(USBVendor):
 
-    def setup_request_handlers(self):
-        self.request_handlers = {
+    def setup_local_handlers(self):
+        self.local_handlers = {
             0x00: self.handle_msos_vendor_extended_config_descriptor,
         }
 

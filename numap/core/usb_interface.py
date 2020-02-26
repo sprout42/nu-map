@@ -36,10 +36,14 @@ class USBInterface(USBBaseActor, BaseUSBInterface):
         :param usb_vendor: USB device vendor (default: None)
         '''
         USBBaseActor.__init__(self, app, phy)
+        # Don't pass endpoints and descriptors to the base class, handle them 
+        # here
         BaseUSBInterface.__init__(self, interface_number, interface_alternate,
                 interface_class, interface_subclass, interface_protocol,
-                interface_string_index, endpoints, descriptors)
+                interface_string_index)
 
+        self.endpoints = [] if endpoints is None else endpoints
+        self.descriptors = {} if descriptors is None else descriptors
         self.cs_interfaces = [] if cs_interfaces is None else cs_interfaces
 
         self.usb_class = usb_class

@@ -15,20 +15,19 @@ class USBVendor(USBBaseActor, BaseUSBVendor):
         :param phy: physical connection
         '''
         USBBaseActor.__init__(self, app, phy)
-        BaseUSBVendor.__init__(self, )
+        BaseUSBVendor.__init__(self)
 
-        # unused?
+        self.setup_local_handlers()
+
         self.interface = None
         self.endpoint = None
 
-    def setup_request_handlers(self):
-        self.request_handlers = {}
+    def setup_local_handlers(self):
+        self.local_handlers = {}
 
     def default_handler(self, req):
-        print(req)
-        handler = self.request_handlers[req.request]
+        handler = self.local_handlers[req.request]
         response = handler(req)
-        print(response)
         if response is not None:
             self.phy.send_on_endpoint(0, response)
         self.usb_function_supported('vendor specific setup request received')

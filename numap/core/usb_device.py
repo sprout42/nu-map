@@ -135,7 +135,8 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
             req = USBDeviceRequest(buf)
         else:
             req = buf
-        self.debug('Received request: %s' % req)
+        req_str = 'Received request: %s' % req
+        self.debug(req_str)
 
         # figure out the intended recipient
         recipient = None
