@@ -252,6 +252,8 @@ class NumapVSScanApp(NumapApp):
             try:
                 device.connect()
                 device.run()
+            except KeyboardInterrupt:
+                break
             except:
                 self.logger.error(traceback.format_exc())
             device.disconnect()

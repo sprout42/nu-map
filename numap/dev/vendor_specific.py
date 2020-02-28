@@ -20,7 +20,8 @@ class USBVendorSpecificVendor(USBVendor):
         }
 
     def handle_generic(self, req):
-        self.always('Generic handler - req: %s' % req)
+        self.always('handle_generic req: %s' % req)
+        self.phy.send_on_endpoint(0, b'\x00')
 
 
 class USBVendorSpecificClass(USBClass):
@@ -32,7 +33,8 @@ class USBVendorSpecificClass(USBClass):
         }
 
     def handle_generic(self, req):
-        self.always('Generic handler - req: %s' % req)
+        self.always('handle_generic req: %s' % req)
+        self.phy.send_on_endpoint(0, b'\x00')
 
 
 class USBVendorSpecificInterface(USBInterface):
@@ -49,62 +51,62 @@ class USBVendorSpecificInterface(USBInterface):
             interface_subclass=1,
             interface_protocol=1,
             interface_string_index=0,
-            endpoints=[],
+            endpoints=endpoints,
             usb_class=USBVendorSpecificClass(app, phy),
             usb_vendor=USBVendorSpecificVendor(app, phy)
         )
-        self.virtual_endpoints = endpoints
-        self.endpoints = []
-        self.setup_request_handlers()
+        #self.virtual_endpoints = endpoints
+        #self.endpoints = []
+        #self.setup_request_handlers()
 
-    def handle_buffer_available(self):
-        pass
+    #def handle_buffer_available(self):
+    #    pass
 
-    def handle_data_available(self, data):
-        return
+    #def handle_data_available(self, data):
+    #    return
 
-    def handle_set_interface_request(self, req):
-        self.always('set interface request')
-        self.usb_function_supported()
+    #def handle_set_interface_request(self, req):
+    #    self.always('set interface request')
+    #    self.usb_function_supported()
 
     # Table 9-12 of USB 2.0 spec (pdf page 296)
-    def get_descriptor(self, usb_type='fullspeed', valid=False):
-        '''
-        override the get_descriptor handler - so it would have access to the virtual_endpoints
-        '''
+    #def get_descriptor(self, usb_type='fullspeed', valid=False):
+    #    '''
+    #    override the get_descriptor handler - so it would have access to the virtual_endpoints
+    #    '''
 
-        bLength = 9
-        bDescriptorType = 4
-        bNumEndpoints = len(self.virtual_endpoints)
+    #    bLength = 9
+    #    bDescriptorType = 4
+    #    bNumEndpoints = len(self.virtual_endpoints)
 
-        d = struct.pack(
-            '<BBBBBBBBB',
-            bLength,  # length of descriptor in bytes
-            bDescriptorType,  # descriptor type 4 == interface
-            self.number,
-            self.alternate,
-            bNumEndpoints,
-            self.iclass.class_number,
-            self.subclass,
-            self.protocol,
-            self.string_index
-        )
+    #    d = struct.pack(
+    #        '<BBBBBBBBB',
+    #        bLength,  # length of descriptor in bytes
+    #        bDescriptorType,  # descriptor type 4 == interface
+    #        self.number,
+    #        self.alternate,
+    #        bNumEndpoints,
+    #        self.iclass.class_number,
+    #        self.subclass,
+    #        self.protocol,
+    #        self.string_index
+    #    )
 
-        if self.iclass:
-            iclass_desc_num = interface_class_to_descriptor_type(self.iclass)
-            if iclass_desc_num:
-                desc = self.descriptors[iclass_desc_num]
-                if callable(desc):
-                    desc = desc()
-                d += desc
+    #    if self.iclass:
+    #        iclass_desc_num = interface_class_to_descriptor_type(self.iclass)
+    #        if iclass_desc_num:
+    #            desc = self.descriptors[iclass_desc_num]
+    #            if callable(desc):
+    #                desc = desc()
+    #            d += desc
 
-        for e in self.cs_interfaces:
-            d += e.get_descriptor(usb_type=usb_type, valid=valid)
+    #    for e in self.cs_interfaces:
+    #        d += e.get_descriptor(usb_type=usb_type, valid=valid)
 
-        for e in self.virtual_endpoints:
-            d += e.get_descriptor(usb_type=usb_type, valid=valid)
+    #    for e in self.virtual_endpoints:
+    #        d += e.get_descriptor(usb_type=usb_type, valid=valid)
 
-        return d
+    #    return d
 
     def setup_request_handlers(self):
         self.request_handlers = {
@@ -112,7 +114,8 @@ class USBVendorSpecificInterface(USBInterface):
         }
 
     def handle_generic(self, req):
-        self.always('Generic handler - req: %s' % req)
+        self.always('handle_generic req: %s' % req)
+        self.phy.send_on_endpoint(0, b'\x00')
 
 
 class USBVendorSpecificDevice(USBDevice):
@@ -146,29 +149,29 @@ class USBVendorSpecificDevice(USBDevice):
             ],
         )
 
-    def handle_request(self, buf):
-        '''
-        override the handle_request - in case a request is directed to an endpoint - we mark as supported
-        '''
-        if not isinstance(buf, USBDeviceRequest):
-            req = USBDeviceRequest(buf)
-        else:
-            req = buf
+    #def handle_request(self, buf):
+    #    '''
+    #    override the handle_request - in case a request is directed to an endpoint - we mark as supported
+    #    '''
+    #    if not isinstance(buf, USBDeviceRequest):
+    #        req = USBDeviceRequest(buf)
+    #    else:
+    #        req = buf
 
-        # figure out the intended recipient
-        if req.req_type == Request.type_standard:    # for standard requests we lookup the recipient by index
-            if req.req_recipient_type == Request.recipient_endpoint:
-                self.usb_function_supported()
-                #self.phy.stall_ep0()
-                return
+    #    # figure out the intended recipient
+    #    if req.req_type == Request.type_standard:    # for standard requests we lookup the recipient by index
+    #        if req.req_recipient_type == Request.recipient_endpoint:
+    #            self.usb_function_supported()
+    #            #self.phy.stall_ep0()
+    #            return
 
-        return super().handle_request(buf)
+    #    return super().handle_request(buf)
 
-    def handle_data_available(self, ep_num, data):
-        '''
-        override the ep handler as we are working with virtual endpoints - if data is available for the ep - we mark as supported
-        '''
-        self.usb_function_supported()
+    #def handle_data_available(self, ep_num, data):
+    #    '''
+    #    override the ep handler as we are working with virtual endpoints - if data is available for the ep - we mark as supported
+    #    '''
+    #    self.usb_function_supported()
 
     def get_endpoint(self, num, direction, transfer_type, max_packet_size=0x40):
         return USBEndpoint(

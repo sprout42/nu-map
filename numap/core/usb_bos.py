@@ -24,15 +24,17 @@ class USBBinaryObjectStore(USBBaseActor):
         device_capabilities_descriptors = b''
         for c in self.capabilities:
             device_capabilities_descriptors += c.get_descriptor(usb_type, valid)
+
         bLength = 5  # always 5
         bDescriptorType = DescriptorType.bos
         wTotalLength = len(device_capabilities_descriptors) + 5
         bNumCapabilities = len(self.capabilities)
-        d = struct.pack(
+        descr = struct.pack(
             '<BBHB',
             bLength,
             bDescriptorType,
             wTotalLength & 0xffff,
             bNumCapabilities,
         )
-        return d + device_capabilities_descriptors
+
+        return descr + device_capabilities_descriptors

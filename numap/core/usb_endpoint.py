@@ -44,13 +44,17 @@ class USBEndpoint(USBBaseActor, BaseUSBEndpoint):
         self.address = (self.number & 0x0f) | (self.direction << 7)
 
         default_numap_usbendpoint_request_handlers = { 
-            0: self.handle_get_status
+            0: self.handle_get_status,
+            1: self.handle_clear_feature_request,
         }
         update_table_for_empty_keys(self.request_handlers,
                 default_numap_usbendpoint_request_handlers)
 
         self.usb_class = usb_class
         self.usb_vendor = usb_vendor
+
+    def handle_clear_feature_request(self, req):
+        self.interface.phy.send_on_endpoint(0, b'')
 
     def handle_get_status(self, req):
         self.info('in GET_STATUS of endpoint %d' % self.number)
@@ -66,9 +70,23 @@ class USBEndpoint(USBBaseActor, BaseUSBEndpoint):
     # see Table 9-13 of USB 2.0 spec (pdf page 297)
     @mutable('endpoint_descriptor')
     def get_descriptor(self, usb_type='fullspeed', valid=False):
-        d = BaseUSBEndpoint.get_descriptor(self, )
-
-        # the base facedancer.USBEndpoint class does not support cs_endpoints
+        attributes = (
+            (self.transfer_type & 0x03) |
+            ((self.sync_type & 0x03) << 2) |
+            ((self.usage_type & 0x03) << 4)
+        )
+        bLength = 7
+        bDescriptorType = 5
+        wMaxPacketSize = self._get_max_packet_size(usb_type)
+        d = struct.pack(
+            '<BBBBHB',
+            bLength,
+            bDescriptorType,
+            self.address,
+            attributes,
+            wMaxPacketSize,
+            self.interval
+        )
         for cs in self.cs_endpoints:
             d += cs.get_descriptor()
         return d

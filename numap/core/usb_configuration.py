@@ -70,15 +70,16 @@ class USBConfiguration(USBBaseActor, BaseUSBConfiguration):
         interface_descriptors = b''
         for i in self.interfaces:
             interface_descriptors += i.get_descriptor(usb_type, valid)
+
         bLength = 9  # always 9
         bDescriptorType = DescriptorType.other_speed_configuration
-        wTotalLength = len(interface_descriptors) + 9
+        wTotalLength = 9
         bNumInterfaces = len(self.interfaces)
         d = struct.pack(
             '<BBHBBBBB',
             bLength,
             bDescriptorType,
-            wTotalLength & 0xffff,
+            (wTotalLength + len(interface_descriptors)) & 0xffff,
             bNumInterfaces,
             self.configuration_index,
             self.configuration_string_index,

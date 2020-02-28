@@ -139,6 +139,9 @@ class USBDevice(USBBaseActor, BaseUSBDevice):
         req_str = 'Received request: %s' % req
         self.debug(req_str)
 
+        # Signal the app that we are communicating with the target
+        self.app.signal_setup_packet_received()
+
         # figure out the intended recipient
         recipient = None
         handler_entity = None

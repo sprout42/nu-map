@@ -39,6 +39,7 @@ class DCBillboard(USBDeviceCapability):
 
 
 class USBBillboardDevice(USBDevice):
+    name = 'BillboardDevice'
 
     def __init__(self, app, phy, vid=0x8312, pid=0x8312, **kwargs):
         usb_class = None
