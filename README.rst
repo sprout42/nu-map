@@ -87,7 +87,7 @@ Device Emulation
 
 nümap's basic functionallity is emulating a USB device.
 You can emulate one of the existing devices
-(use **numaplist** to see the available devices):
+(use **numap-list** to see the available devices):
 
 ::
 
