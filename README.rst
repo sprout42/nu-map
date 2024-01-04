@@ -34,7 +34,7 @@ instead, use pip to install it directly from github:
 
 ::
 
-    $ pip install git+https://github.com/usb-tools/numap.git#egg=numap
+    $ pip install git+https://github.com/usb-tools/nu-map.git#egg=numap
 
 
 "Soft" Dependencies
